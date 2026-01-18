@@ -913,20 +913,17 @@
                 width: 100%;
             }
 
-            /* ヘルプボタンと中断ボタンのスマホ配置 */
+            /* スマホではfixed配置のボタンを非表示にし、ゲーム内に配置 */
             .help-btn {
-                top: 10px;
-                right: 10px;
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+                display: none;
             }
 
             .quit-btn {
-                top: 10px;
-                right: 50px;
-                padding: 6px 10px;
-                font-size: 11px;
+                display: none;
+            }
+
+            .audio-controls {
+                display: none;
             }
 
             /* ボード調整 */
@@ -958,6 +955,11 @@
                 padding: 15px 20px;
                 font-size: 13px;
             }
+
+            /* スマホ用インラインコントロール表示 */
+            .mobile-controls {
+                display: flex !important;
+            }
         }
 
         /* さらに小さい画面 */
@@ -970,18 +972,84 @@
                 width: 32px;
                 height: 32px;
             }
+        }
 
-            .quit-btn {
-                right: 42px;
-                padding: 5px 8px;
-                font-size: 10px;
-            }
+        /* スマホ用インラインコントロール（デフォルト非表示） */
+        .mobile-controls {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            background: rgba(0, 10, 0, 0.8);
+            border: 1px solid var(--neon-green-dim);
+        }
 
-            .help-btn {
-                width: 28px;
-                height: 28px;
-                font-size: 12px;
-            }
+        .mobile-controls .left-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-controls .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-controls .mobile-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-panel);
+            border: 1px solid var(--neon-green-dim);
+            color: var(--neon-green-dim);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .mobile-controls .mobile-btn.on {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .mobile-controls .mobile-btn:not(.on)::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 18px;
+            background: var(--neon-red);
+            transform: rotate(45deg);
+        }
+
+        .mobile-controls .mobile-quit {
+            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .mobile-controls .mobile-help {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-panel);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .mobile-controls-title {
+            margin-bottom: 15px;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
             .player-tag {
                 padding: 5px 8px;
@@ -1260,6 +1328,18 @@
         <!-- Title Screen -->
         <div class="screen" id="titleScreen">
             <h1 class="title">LINKED BLOCKS_</h1>
+            
+            <!-- スマホ用コントロールバー（タイトル画面） -->
+            <div class="mobile-controls mobile-controls-title" id="mobileControlsTitle">
+                <div class="left-controls">
+                    <button class="mobile-btn on" id="mobileBgmBtn2" title="BGM">♪</button>
+                    <button class="mobile-btn on" id="mobileSeBtn2" title="SE">🔊</button>
+                </div>
+                <div class="right-controls">
+                    <button class="mobile-help" id="mobileHelpBtn2">?</button>
+                </div>
+            </div>
+            
             <div class="panel">
                 <div class="corner-br"></div>
                 
@@ -1370,6 +1450,19 @@
                     <span class="turn-indicator">TURN: <span id="currentTurn">P1</span></span>
                     <span class="timer" id="timerDisplay">--</span>
                 </div>
+                
+                <!-- スマホ用コントロールバー -->
+                <div class="mobile-controls" id="mobileControls">
+                    <div class="left-controls">
+                        <button class="mobile-btn on" id="mobileBgmBtn" title="BGM">♪</button>
+                        <button class="mobile-btn on" id="mobileSeBtn" title="SE">🔊</button>
+                    </div>
+                    <div class="right-controls">
+                        <button class="mobile-quit" id="mobileQuitBtn">✕ 中断</button>
+                        <button class="mobile-help" id="mobileHelpBtn">?</button>
+                    </div>
+                </div>
+                
                 <div class="players-bar" id="playersBar"></div>
             </div>
 
@@ -2808,8 +2901,13 @@
 
         // ==================== EVENT LISTENERS ====================
         function initEventListeners() {
-            // Quit button
+            // Quit button (PC)
             document.getElementById('quitGameBtn').addEventListener('click', () => {
+                showQuitConfirm();
+            });
+            
+            // Quit button (スマホ)
+            document.getElementById('mobileQuitBtn').addEventListener('click', () => {
                 showQuitConfirm();
             });
 
@@ -2822,10 +2920,56 @@
                 audio.playClick();
             });
 
-            // Help button
+            // Help button (PC)
             document.getElementById('helpBtn').addEventListener('click', () => {
                 showModal('rulesModal');
                 audio.playClick();
+            });
+            
+            // Help button (スマホ - ゲーム画面)
+            document.getElementById('mobileHelpBtn').addEventListener('click', () => {
+                showModal('rulesModal');
+                audio.playClick();
+            });
+            
+            // Help button (スマホ - タイトル画面)
+            document.getElementById('mobileHelpBtn2').addEventListener('click', () => {
+                showModal('rulesModal');
+                audio.playClick();
+            });
+            
+            // BGM button (スマホ - ゲーム画面)
+            document.getElementById('mobileBgmBtn').addEventListener('click', () => {
+                const isOn = audio.toggleBGM();
+                document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
+                document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
+                document.getElementById('bgmBtn').classList.toggle('on', isOn);
+                document.getElementById('volumeControl').classList.toggle('hidden', !isOn);
+            });
+            
+            // BGM button (スマホ - タイトル画面)
+            document.getElementById('mobileBgmBtn2').addEventListener('click', () => {
+                const isOn = audio.toggleBGM();
+                document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
+                document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
+                document.getElementById('bgmBtn').classList.toggle('on', isOn);
+                document.getElementById('volumeControl').classList.toggle('hidden', !isOn);
+            });
+            
+            // SE button (スマホ - ゲーム画面)
+            document.getElementById('mobileSeBtn').addEventListener('click', () => {
+                const isOn = audio.toggleSE();
+                document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
+                document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
+                document.getElementById('seBtn').classList.toggle('on', isOn);
+            });
+            
+            // SE button (スマホ - タイトル画面)
+            document.getElementById('mobileSeBtn2').addEventListener('click', () => {
+                const isOn = audio.toggleSE();
+                document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
+                document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
+                document.getElementById('seBtn').classList.toggle('on', isOn);
             });
 
             // Title screen buttons
@@ -3018,6 +3162,12 @@
             const prefs = audio.loadPreferences();
             document.getElementById('bgmBtn').classList.toggle('on', prefs.bgm);
             document.getElementById('seBtn').classList.toggle('on', prefs.se);
+            
+            // スマホ用ボタンも同期
+            document.getElementById('mobileBgmBtn').classList.toggle('on', prefs.bgm);
+            document.getElementById('mobileBgmBtn2').classList.toggle('on', prefs.bgm);
+            document.getElementById('mobileSeBtn').classList.toggle('on', prefs.se);
+            document.getElementById('mobileSeBtn2').classList.toggle('on', prefs.se);
             
             // 音量スライダーの初期化
             const volumeSlider = document.getElementById('bgmVolume');
