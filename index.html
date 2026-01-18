@@ -885,7 +885,24 @@
 
             .game-info {
                 flex-direction: column;
-                gap: 10px;
+                gap: 5px;
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .game-header {
+                padding-top: 10px;
+            }
+
+            .players-bar {
+                flex-wrap: wrap;
+                gap: 5px;
+                justify-content: center;
+            }
+
+            .player-tag {
+                padding: 6px 10px;
+                font-size: 11px;
             }
 
             .game-over-buttons {
@@ -894,6 +911,106 @@
 
             .game-over-buttons .btn {
                 width: 100%;
+            }
+
+            /* ヘルプボタンと中断ボタンのスマホ配置 */
+            .help-btn {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .quit-btn {
+                top: 10px;
+                right: 55px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            /* ボード調整 */
+            .board-container {
+                padding: 10px;
+            }
+
+            .cell {
+                width: 38px;
+                height: 38px;
+            }
+
+            /* タイトル */
+            .title {
+                font-size: 28px;
+            }
+
+            /* モーダル */
+            .modal-content {
+                padding: 20px;
+                max-height: 70vh;
+            }
+
+            .modal-title {
+                font-size: 18px;
+            }
+
+            .notification {
+                padding: 15px 20px;
+                font-size: 13px;
+            }
+
+            /* 音量コントロール */
+            .audio-controls {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .audio-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .volume-control {
+                padding: 4px 6px;
+            }
+
+            .volume-slider {
+                width: 50px;
+            }
+
+            .volume-value {
+                font-size: 9px;
+                min-width: 28px;
+            }
+        }
+
+        /* さらに小さい画面 */
+        @media (max-width: 400px) {
+            .title {
+                font-size: 22px;
+            }
+
+            .cell {
+                width: 32px;
+                height: 32px;
+            }
+
+            .quit-btn {
+                right: 50px;
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .help-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .player-tag {
+                padding: 5px 8px;
+                font-size: 10px;
             }
         }
 
@@ -905,12 +1022,13 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 50;
+            z-index: 100;
         }
 
         .audio-buttons {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .audio-btn {
@@ -951,34 +1069,27 @@
         }
 
         .audio-btn .label {
-            font-size: 10px;
-            position: absolute;
-            bottom: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-        }
-
-        /* Volume Slider - ポップアップ式 */
-        .volume-control {
             display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: rgba(0, 10, 0, 0.95);
-            border: 1px solid var(--neon-green);
-            box-shadow: 0 0 15px var(--neon-green-glow);
-            animation: fadeIn 0.2s ease;
         }
 
-        .volume-control.visible {
+        /* Volume Slider - ボタンの横に配置 */
+        .volume-control {
             display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(0, 10, 0, 0.95);
+            border: 1px solid var(--neon-green-dim);
+            margin-left: 5px;
+        }
+
+        .volume-control.hidden {
+            display: none;
         }
 
         .volume-label {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--neon-green);
-            min-width: 30px;
         }
 
         .volume-slider {
@@ -1059,17 +1170,14 @@
         <div class="audio-buttons">
             <button class="audio-btn on" id="bgmBtn" title="BGM ON/OFF">
                 ♪
-                <span class="label">BGM</span>
             </button>
             <button class="audio-btn on" id="seBtn" title="SE ON/OFF">
                 🔊
-                <span class="label">SE</span>
             </button>
-        </div>
-        <div class="volume-control" id="volumeControl">
-            <span class="volume-label">VOL</span>
-            <input type="range" class="volume-slider" id="bgmVolume" min="0" max="100" value="30">
-            <span class="volume-value" id="volumeValue">30%</span>
+            <div class="volume-control" id="volumeControl">
+                <input type="range" class="volume-slider" id="bgmVolume" min="0" max="100" value="30">
+                <span class="volume-value" id="volumeValue">30%</span>
+            </div>
         </div>
     </div>
 
@@ -2754,6 +2862,9 @@
             volumeSlider.value = Math.round(prefs.volume * 100);
             volumeValue.textContent = Math.round(prefs.volume * 100) + '%';
             
+            // BGMがOFFなら音量コントロールを非表示
+            volumeControl.classList.toggle('hidden', !prefs.bgm);
+            
             // 音量スライダーのイベント
             volumeSlider.addEventListener('input', (e) => {
                 const volume = parseInt(e.target.value) / 100;
@@ -2761,51 +2872,12 @@
                 volumeValue.textContent = e.target.value + '%';
             });
             
-            // 音量コントロールの自動非表示タイマー
-            let volumeHideTimer = null;
-            
-            function showVolumeControl() {
-                volumeControl.classList.add('visible');
-                clearTimeout(volumeHideTimer);
-                volumeHideTimer = setTimeout(() => {
-                    volumeControl.classList.remove('visible');
-                }, 3000); // 3秒後に自動で非表示
-            }
-            
-            // 音量コントロール操作中はタイマーをリセット
-            volumeControl.addEventListener('mouseenter', () => {
-                clearTimeout(volumeHideTimer);
-            });
-            
-            volumeControl.addEventListener('mouseleave', () => {
-                volumeHideTimer = setTimeout(() => {
-                    volumeControl.classList.remove('visible');
-                }, 1500);
-            });
-            
-            // BGMボタン - クリックでON/OFF、ダブルクリックで音量表示
+            // BGMボタン - シンプルにクリックでON/OFF
             const bgmBtn = document.getElementById('bgmBtn');
-            let bgmClickCount = 0;
-            let bgmClickTimer = null;
-            
             bgmBtn.addEventListener('click', () => {
-                bgmClickCount++;
-                
-                if (bgmClickCount === 1) {
-                    bgmClickTimer = setTimeout(() => {
-                        // シングルクリック: ON/OFF切り替え
-                        const isOn = audio.toggleBGM();
-                        bgmBtn.classList.toggle('on', isOn);
-                        bgmClickCount = 0;
-                    }, 250);
-                } else if (bgmClickCount === 2) {
-                    // ダブルクリック: 音量コントロール表示
-                    clearTimeout(bgmClickTimer);
-                    bgmClickCount = 0;
-                    if (audio.bgmEnabled) {
-                        showVolumeControl();
-                    }
-                }
+                const isOn = audio.toggleBGM();
+                bgmBtn.classList.toggle('on', isOn);
+                volumeControl.classList.toggle('hidden', !isOn);
             });
 
             // SEボタン
