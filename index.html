@@ -958,31 +958,6 @@
                 padding: 15px 20px;
                 font-size: 13px;
             }
-
-            /* 音量コントロール */
-            .audio-controls {
-                bottom: 10px;
-                left: 10px;
-            }
-
-            .audio-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-
-            .volume-control {
-                padding: 4px 6px;
-            }
-
-            .volume-slider {
-                width: 50px;
-            }
-
-            .volume-value {
-                font-size: 9px;
-                min-width: 28px;
-            }
         }
 
         /* さらに小さい画面 */
@@ -1011,6 +986,12 @@
             .player-tag {
                 padding: 5px 8px;
                 font-size: 10px;
+            }
+
+            .audio-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
             }
         }
 
@@ -1072,7 +1053,7 @@
             display: none;
         }
 
-        /* Volume Slider - ボタンの横に配置 */
+        /* Volume Slider */
         .volume-control {
             display: flex;
             align-items: center;
@@ -1080,7 +1061,6 @@
             padding: 6px 10px;
             background: rgba(0, 10, 0, 0.95);
             border: 1px solid var(--neon-green-dim);
-            margin-left: 5px;
         }
 
         .volume-control.hidden {
@@ -1090,6 +1070,82 @@
         .volume-label {
             font-size: 9px;
             color: var(--neon-green);
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80px;
+            height: 6px;
+            background: rgba(0, 255, 65, 0.2);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-green-glow);
+            transition: all 0.2s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px var(--neon-green-glow);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .volume-value {
+            font-size: 10px;
+            color: var(--neon-green);
+            min-width: 32px;
+            text-align: right;
+        }
+
+        /* スマホ用：音量コントロールをコンパクトに */
+        @media (max-width: 600px) {
+            .audio-controls {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .audio-buttons {
+                gap: 8px;
+            }
+
+            .audio-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .volume-control {
+                padding: 5px 8px;
+            }
+
+            .volume-slider {
+                width: 70px;
+            }
+
+            .volume-value {
+                font-size: 9px;
+                min-width: 28px;
+            }
         }
 
         .volume-slider {
@@ -1167,6 +1223,10 @@
 
     <!-- Audio Controls -->
     <div class="audio-controls">
+        <div class="volume-control" id="volumeControl">
+            <input type="range" class="volume-slider" id="bgmVolume" min="0" max="100" value="30">
+            <span class="volume-value" id="volumeValue">30%</span>
+        </div>
         <div class="audio-buttons">
             <button class="audio-btn on" id="bgmBtn" title="BGM ON/OFF">
                 ♪
@@ -1174,10 +1234,6 @@
             <button class="audio-btn on" id="seBtn" title="SE ON/OFF">
                 🔊
             </button>
-            <div class="volume-control" id="volumeControl">
-                <input type="range" class="volume-slider" id="bgmVolume" min="0" max="100" value="30">
-                <span class="volume-value" id="volumeValue">30%</span>
-            </div>
         </div>
     </div>
 
