@@ -685,8 +685,8 @@
         .quit-btn {
             position: fixed;
             top: 20px;
-            right: 20px;
-            padding: 10px 20px;
+            right: 70px;
+            padding: 10px 15px;
             background: rgba(0, 10, 0, 0.8);
             border: 2px solid var(--neon-red);
             color: var(--neon-red);
@@ -917,16 +917,16 @@
             .help-btn {
                 top: 10px;
                 right: 10px;
-                width: 36px;
-                height: 36px;
-                font-size: 16px;
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
             }
 
             .quit-btn {
                 top: 10px;
-                right: 55px;
-                padding: 8px 12px;
-                font-size: 12px;
+                right: 50px;
+                padding: 6px 10px;
+                font-size: 11px;
             }
 
             /* ボード調整 */
@@ -972,15 +972,15 @@
             }
 
             .quit-btn {
-                right: 50px;
-                padding: 6px 10px;
-                font-size: 11px;
+                right: 42px;
+                padding: 5px 8px;
+                font-size: 10px;
             }
 
             .help-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
             }
 
             .player-tag {
@@ -995,26 +995,26 @@
             }
         }
 
-        /* Audio Control */
+        /* Audio Control - 右上に配置 */
         .audio-controls {
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             left: 20px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             z-index: 100;
         }
 
         .audio-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         .audio-btn {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             background: var(--bg-panel);
             border: 2px solid var(--neon-green-dim);
             color: var(--neon-green-dim);
@@ -1022,7 +1022,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             transition: all 0.2s ease;
             position: relative;
         }
@@ -1043,7 +1043,7 @@
             content: '';
             position: absolute;
             width: 2px;
-            height: 30px;
+            height: 24px;
             background: var(--neon-red);
             transform: rotate(45deg);
             box-shadow: 0 0 5px var(--neon-red);
@@ -1058,7 +1058,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 10px;
+            padding: 4px 8px;
             background: rgba(0, 10, 0, 0.95);
             border: 1px solid var(--neon-green-dim);
         }
@@ -1075,7 +1075,7 @@
         .volume-slider {
             -webkit-appearance: none;
             appearance: none;
-            width: 80px;
+            width: 60px;
             height: 6px;
             background: rgba(0, 255, 65, 0.2);
             border-radius: 3px;
@@ -1086,8 +1086,8 @@
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: var(--neon-green);
             border-radius: 50%;
             cursor: pointer;
@@ -1101,8 +1101,8 @@
         }
 
         .volume-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: var(--neon-green);
             border-radius: 50%;
             cursor: pointer;
@@ -1111,40 +1111,50 @@
         }
 
         .volume-value {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--neon-green);
-            min-width: 32px;
+            min-width: 28px;
             text-align: right;
         }
 
-        /* スマホ用：音量コントロールをコンパクトに */
+        /* スマホ用 */
         @media (max-width: 600px) {
             .audio-controls {
-                bottom: 10px;
+                top: 10px;
                 left: 10px;
             }
 
             .audio-buttons {
-                gap: 8px;
+                gap: 6px;
             }
 
             .audio-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+
+            .audio-btn:not(.on)::after {
+                height: 18px;
             }
 
             .volume-control {
-                padding: 5px 8px;
+                padding: 3px 6px;
             }
 
             .volume-slider {
-                width: 70px;
+                width: 50px;
+                height: 4px;
+            }
+
+            .volume-slider::-webkit-slider-thumb {
+                width: 12px;
+                height: 12px;
             }
 
             .volume-value {
-                font-size: 9px;
-                min-width: 28px;
+                font-size: 8px;
+                min-width: 24px;
             }
         }
 
@@ -1193,11 +1203,11 @@
             text-align: right;
         }
 
-        /* Help button */
+        /* Help button - 右上 */
         .help-btn {
             position: fixed;
             top: 20px;
-            right: 120px;
+            right: 20px;
             width: 40px;
             height: 40px;
             background: var(--bg-panel);
@@ -1738,6 +1748,7 @@
             // User data
             username: null,
             isRegistered: false,
+            deviceId: null,
             
             // Game settings
             gameMode: null, // 'solo', 'local'
@@ -1759,6 +1770,96 @@
             
             // Rankings (localStorage)
             rankings: []
+        };
+
+        // ==================== DEVICE IDENTIFICATION ====================
+        /**
+         * デバイス識別システム
+         * - デバイスごとに一意のUUIDを生成・保存
+         * - ユーザー名とデバイスIDを紐付けて管理
+         * - サーバーなしのローカル認証
+         */
+        const DeviceAuth = {
+            // デバイスIDを取得または生成
+            getDeviceId() {
+                let deviceId = localStorage.getItem('linkedblocks_device_id');
+                if (!deviceId) {
+                    deviceId = this.generateUUID();
+                    localStorage.setItem('linkedblocks_device_id', deviceId);
+                }
+                return deviceId;
+            },
+            
+            // UUID生成
+            generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            },
+            
+            // ユーザー登録（デバイスIDと紐付け）
+            registerUser(username) {
+                const deviceId = this.getDeviceId();
+                const users = this.getUsers();
+                
+                // 同一デバイス内で重複チェック
+                if (users.some(u => u.username === username)) {
+                    return { success: false, error: 'このネームは既に使用されています' };
+                }
+                
+                // 新規登録
+                users.push({
+                    username: username,
+                    deviceId: deviceId,
+                    createdAt: Date.now()
+                });
+                
+                localStorage.setItem('linkedblocks_users', JSON.stringify(users));
+                
+                // 現在のログインユーザーとして保存
+                localStorage.setItem('linkedblocks_current_user', username);
+                
+                return { success: true, deviceId: deviceId };
+            },
+            
+            // 登録済みユーザーでログイン
+            loginUser(username) {
+                const deviceId = this.getDeviceId();
+                const users = this.getUsers();
+                
+                const user = users.find(u => u.username === username && u.deviceId === deviceId);
+                if (user) {
+                    localStorage.setItem('linkedblocks_current_user', username);
+                    return { success: true };
+                }
+                
+                return { success: false, error: 'ユーザーが見つかりません' };
+            },
+            
+            // 前回のログインユーザーを取得
+            getLastUser() {
+                return localStorage.getItem('linkedblocks_current_user');
+            },
+            
+            // 登録ユーザー一覧を取得
+            getUsers() {
+                const saved = localStorage.getItem('linkedblocks_users');
+                return saved ? JSON.parse(saved) : [];
+            },
+            
+            // このデバイスの登録ユーザー一覧
+            getDeviceUsers() {
+                const deviceId = this.getDeviceId();
+                return this.getUsers().filter(u => u.deviceId === deviceId);
+            },
+            
+            // ユーザーが登録済みか確認
+            isRegistered(username) {
+                const deviceId = this.getDeviceId();
+                return this.getUsers().some(u => u.username === username && u.deviceId === deviceId);
+            }
         };
 
         // ==================== SYNC LAYER (ABSTRACTION) ====================
@@ -2749,18 +2850,16 @@
                     return;
                 }
                 
-                // Check for duplicate
-                const existingUsers = JSON.parse(localStorage.getItem('linkedblocks_users') || '[]');
-                if (existingUsers.includes(username)) {
-                    showNotification('このネームは他のユーザーが使用中です');
+                // デバイス認証システムで登録
+                const result = DeviceAuth.registerUser(username);
+                if (!result.success) {
+                    showNotification(result.error);
                     return;
                 }
                 
-                existingUsers.push(username);
-                localStorage.setItem('linkedblocks_users', JSON.stringify(existingUsers));
-                
                 GameState.username = username;
                 GameState.isRegistered = true;
+                GameState.deviceId = result.deviceId;
                 audio.playClick();
                 
                 // 登録完了の視覚的フィードバック
@@ -2775,6 +2874,7 @@
             document.getElementById('guestPlayBtn').addEventListener('click', () => {
                 GameState.username = 'GUEST';
                 GameState.isRegistered = false;
+                GameState.deviceId = DeviceAuth.getDeviceId();
                 audio.playClick();
                 
                 // ゲストとして設定したことを視覚的に表示
@@ -2904,6 +3004,15 @@
             createMatrixBackground();
             loadRankings();
             initEventListeners();
+            
+            // デバイスIDを初期化
+            GameState.deviceId = DeviceAuth.getDeviceId();
+            
+            // 前回のログインユーザーを復元
+            const lastUser = DeviceAuth.getLastUser();
+            if (lastUser && DeviceAuth.isRegistered(lastUser)) {
+                document.getElementById('usernameInput').value = lastUser;
+            }
             
             // Load audio preferences
             const prefs = audio.loadPreferences();
