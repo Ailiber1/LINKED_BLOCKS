@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LINKED BLOCKS_</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIXq3YJPOfdCTp0BGoyRL9RQSjEgEPwLU",
+            authDomain: "linked-blocks-64af9.firebaseapp.com",
+            databaseURL: "https://linked-blocks-64af9-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "linked-blocks-64af9",
+            storageBucket: "linked-blocks-64af9.firebasestorage.app",
+            messagingSenderId: "319513344169",
+            appId: "1:319513344169:web:8e7488a0affc7b4ac711b8",
+            measurementId: "G-VY5M2X480Y"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
+    
     <style>
         :root {
             --neon-green: #00ff41;
@@ -725,31 +747,151 @@
         /* Ranking */
         .ranking-list {
             width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .ranking-item {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 12px 15px;
+            margin: 5px 0;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            background: rgba(0, 255, 65, 0.05);
+            border-radius: 5px;
         }
 
-        .ranking-item:nth-child(1) .rank { color: #ffd700; }
-        .ranking-item:nth-child(2) .rank { color: #c0c0c0; }
-        .ranking-item:nth-child(3) .rank { color: #cd7f32; }
+        /* 1位 - 高級感のある金色 */
+        .ranking-item.rank-gold { 
+            border-color: #d4af37;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(255, 215, 0, 0.1) 50%, rgba(212, 175, 55, 0.15) 100%);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+        .ranking-item.rank-gold .rank { 
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* 2位 - 銀色 */
+        .ranking-item.rank-silver { 
+            border-color: #c0c0c0;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(220, 220, 220, 0.1) 50%, rgba(192, 192, 192, 0.15) 100%);
+            box-shadow: 0 0 10px rgba(192, 192, 192, 0.2);
+        }
+        .ranking-item.rank-silver .rank { 
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(192, 192, 192, 0.4);
+        }
+        
+        /* 3位 - 銅色 */
+        .ranking-item.rank-bronze { 
+            border-color: #cd7f32;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.1) 50%, rgba(205, 127, 50, 0.15) 100%);
+            box-shadow: 0 0 8px rgba(205, 127, 50, 0.2);
+        }
+        .ranking-item.rank-bronze .rank { 
+            color: #cd7f32;
+            text-shadow: 0 0 6px rgba(205, 127, 50, 0.4);
+        }
 
         .rank {
             width: 40px;
             font-family: 'Orbitron', sans-serif;
             font-weight: bold;
+            font-size: 18px;
         }
 
         .ranking-name {
             flex: 1;
+            font-size: 16px;
         }
 
         .ranking-wins {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            min-width: 60px;
+        }
+
+        .ranking-wins .wins-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .ranking-wins .wins-count {
             color: var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 22px;
+            text-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        /* Ranking Tabs */
+        .ranking-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ranking-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: 2px solid var(--neon-green-dim);
+            color: var(--neon-green-dim);
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .ranking-tab:hover, .ranking-tab.active {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .ranking-tab.active {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .ranking-note {
+            color: var(--text-dim);
+            font-size: 11px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Waiting Players List */
+        .waiting-player {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid var(--neon-green-dim);
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .waiting-player .player-index {
+            width: 30px;
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+
+        .waiting-player .player-name {
+            flex: 1;
+        }
+
+        .waiting-player.offline {
+            border-color: var(--neon-red);
+            opacity: 0.5;
+        }
+
+        .waiting-player.offline .player-name {
+            color: var(--neon-red);
+            text-decoration: line-through;
         }
 
         /* CPU Level */
@@ -1236,51 +1378,6 @@
             }
         }
 
-        .volume-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 80px;
-            height: 6px;
-            background: rgba(0, 255, 65, 0.2);
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--neon-green-glow);
-            transition: all 0.2s ease;
-        }
-
-        .volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px var(--neon-green-glow);
-        }
-
-        .volume-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px var(--neon-green-glow);
-        }
-
-        .volume-value {
-            font-size: 10px;
-            color: var(--neon-green);
-            min-width: 28px;
-            text-align: right;
-        }
-
         /* Help button - 右上 */
         .help-btn {
             position: fixed;
@@ -1503,6 +1600,7 @@
         <div class="game-over-content">
             <div class="game-set-text">GAME SET!</div>
             <div class="winner-text" id="winnerText">WINNER: PLAYER 1</div>
+            <div id="gameOverCountdown" style="font-size: 36px; color: var(--neon-red); margin: 15px 0; display: none;"></div>
             <div class="game-over-buttons">
                 <button class="btn" id="rematchBtn">再戦</button>
                 <button class="btn btn-secondary" id="returnTitleBtn">タイトルへ</button>
@@ -1536,11 +1634,38 @@
             </div>
 
             <div class="rule-section">
+                <h3>【ユーザー登録について】</h3>
+                <ul>
+                    <li>登録すると、ランキングに記録されます</li>
+                    <li>マルチプレイは登録ユーザーのみ参加可能</li>
+                    <li>使用中のユーザー名は他の人は使えません</li>
+                    <li>アプリを閉じると自動でログアウトされます</li>
+                    <li>ゲストでも一人プレイ（CPU対戦）は可能です</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-dim);">
+                    ※ログアウト後は同じ名前で再ログインできます
+                </p>
+            </div>
+
+            <div class="rule-section">
                 <h3>【ランキング】</h3>
                 <ul>
                     <li>登録ユーザーのみ対象</li>
-                    <li>CPU「強」に勝利で勝利数+1</li>
-                    <li>マルチプレイは優勝者のみ+1</li>
+                    <li>一人プレイとマルチプレイのランキングは別々に記録</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-dim);">
+                    【一人プレイ】CPU「強」に勝利で+1<br>
+                    【マルチプレイ】優勝で+1
+                </p>
+            </div>
+
+            <div class="rule-section">
+                <h3>【マルチプレイ】</h3>
+                <ul>
+                    <li>同じルームIDを入力したプレイヤー同士で対戦</li>
+                    <li>最大3人まで参加可能</li>
+                    <li>ルーム作成者（P1）がゲーム開始ボタンを押せます</li>
+                    <li>同じルーム内では同じユーザー名は使用できません</li>
                 </ul>
             </div>
         </div>
@@ -1551,7 +1676,179 @@
         <div class="modal-content">
             <button class="modal-close" id="closeRankingBtn">×</button>
             <h2 class="modal-title">RANKING</h2>
-            <div class="ranking-list" id="rankingList"></div>
+            
+            <!-- ランキングタブ -->
+            <div class="ranking-tabs">
+                <button class="ranking-tab active" data-tab="solo">一人プレイ</button>
+                <button class="ranking-tab" data-tab="multi">マルチプレイ</button>
+            </div>
+            
+            <div class="ranking-list" id="soloRankingList"></div>
+            <div class="ranking-list" id="multiRankingList" style="display: none;"></div>
+            
+            <p class="ranking-note">※ランキングは全プレイヤーで共有されます</p>
+        </div>
+    </div>
+
+    <!-- Multiplayer Setup Modal -->
+    <div class="modal" id="multiSetupModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeMultiSetupBtn">×</button>
+            <h2 class="modal-title">MULTIPLAYER</h2>
+            
+            <div class="input-group">
+                <label class="input-label">ROOM ID</label>
+                <input type="text" class="input" id="roomIdInput" placeholder="ルームIDを入力..." maxlength="20">
+            </div>
+            
+            <p style="color: var(--text-dim); font-size: 12px; margin: 10px 0;">
+                同じルームIDを入力したプレイヤー同士がマッチングします
+            </p>
+            
+            <div class="input-group">
+                <label class="input-label">揃えるブロック数</label>
+                <div class="select-group">
+                    <button class="select-option selected" data-multiwin="4">4</button>
+                    <button class="select-option" data-multiwin="5">5</button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">持ち時間</label>
+                <div class="select-group">
+                    <button class="select-option" data-multitimer="none">なし</button>
+                    <button class="select-option selected" data-multitimer="30">30秒</button>
+                    <button class="select-option" data-multitimer="60">60秒</button>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <button class="btn" id="joinRoomBtn">ルームに参加</button>
+            <button class="btn btn-secondary" id="cancelMultiBtn">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- Multiplayer Waiting Modal -->
+    <div class="modal" id="multiWaitingModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title">WAITING...</h2>
+            <p style="text-align: center; margin: 20px 0;">
+                ROOM: <span id="waitingRoomId" style="color: var(--neon-cyan);"></span>
+            </p>
+            
+            <!-- ルール表示エリア -->
+            <div id="roomRulesDisplay" style="margin: 15px 0; padding: 10px; border: 1px solid var(--neon-green); border-radius: 5px;">
+                <p style="text-align: center; margin: 5px 0; font-size: 14px;">
+                    <span style="color: var(--text-dim);">揃える数:</span> 
+                    <span id="roomWinLength" style="color: var(--neon-green);">4</span>
+                </p>
+                <p style="text-align: center; margin: 5px 0; font-size: 14px;">
+                    <span style="color: var(--text-dim);">持ち時間:</span> 
+                    <span id="roomTimerSetting" style="color: var(--neon-green);">30秒</span>
+                </p>
+            </div>
+            
+            <div id="waitingPlayersList" style="margin: 20px 0;"></div>
+            <p style="color: var(--text-dim); font-size: 12px; text-align: center;">
+                プレイヤーを待っています... (最大3人)
+            </p>
+            <div class="divider"></div>
+            <button class="btn" id="startMultiGameBtn" style="display: none;">ゲーム開始</button>
+            <button class="btn btn-secondary" id="leaveRoomBtn">退出</button>
+        </div>
+    </div>
+
+    <!-- Rematch Waiting Modal (再戦待機) -->
+    <div class="modal" id="rematchWaitingModal">
+        <div class="modal-content">
+            <h2 class="modal-title" style="color: var(--neon-yellow);">再戦待機中</h2>
+            <p style="text-align: center; margin: 10px 0; color: var(--text-dim); font-size: 12px;">
+                ROOM: <span id="rematchRoomId" style="color: var(--neon-cyan);"></span>
+            </p>
+            <div id="rematchPlayerStatus" style="margin: 20px 0;"></div>
+            <p style="color: var(--text-dim); font-size: 12px; text-align: center; margin: 10px 0;">
+                プレイヤーを待っています... (最大3人)
+            </p>
+            <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
+                <button class="btn" id="rematchStartBtn" style="display: none;">ゲーム開始</button>
+                <button class="btn btn-secondary" id="rematchCancelBtn">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roulette Modal (順番決めルーレット) -->
+    <div class="modal" id="rouletteModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-yellow);">順番決め</h2>
+            <div id="rouletteDisplay" style="text-align: center; margin: 30px 0;">
+                <div id="rouletteSpinner" style="font-size: 48px; color: var(--neon-green);"></div>
+            </div>
+            <p id="rouletteResult" style="text-align: center; margin: 20px 0; color: var(--neon-cyan); display: none;"></p>
+        </div>
+    </div>
+
+    <!-- Player Left During Game Modal (ゲーム中の退席) -->
+    <div class="modal" id="playerLeftDuringGameModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-red);">退席通知</h2>
+            <p id="playerLeftDuringGameMessage" style="text-align: center; margin: 20px 0; color: var(--neon-red);"></p>
+            <p style="text-align: center; margin-bottom: 20px;">ゲームを続行しますか？</p>
+            <div class="modal-buttons">
+                <button class="btn" id="continueGameDuringBtn">続行する</button>
+                <button class="btn btn-secondary" id="endGameDuringBtn">終了する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spectator Waiting Modal (観戦者待機) -->
+    <div class="modal" id="spectatorWaitingModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-cyan);">待機中</h2>
+            <p style="text-align: center; margin: 20px 0; color: var(--text-color);">
+                現在ゲーム進行中です<br>
+                ゲーム終了まで待機しています...
+            </p>
+            <div id="spectatorGameStatus" style="text-align: center; margin: 10px 0; color: var(--neon-green);"></div>
+            <button class="btn btn-secondary" id="cancelSpectatorBtn">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- Player Left Notification Modal -->
+    <div class="modal" id="playerLeftModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-red);">退席通知</h2>
+            <p id="playerLeftMessage" style="text-align: center; margin: 20px 0; color: var(--neon-red);"></p>
+            <p style="text-align: center; margin-bottom: 20px;">ゲームを続行しますか？</p>
+            <div class="modal-buttons">
+                <button class="btn" id="continueGameBtn">はい</button>
+                <button class="btn btn-secondary" id="endGameAfterLeaveBtn">いいえ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alone In Room Modal (一人になった場合) -->
+    <div class="modal" id="aloneInRoomModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-yellow);">お知らせ</h2>
+            <p style="text-align: center; margin: 20px 0; color: var(--text-color);">
+                他のユーザーが離脱し一人になったため<br>タイトル画面へ移動します
+            </p>
+            <button class="btn" id="aloneOkBtn">OK</button>
+        </div>
+    </div>
+
+    <!-- New Player Waiting Modal (新規参加者待機) -->
+    <div class="modal" id="newPlayerWaitingModal">
+        <div class="modal-content modal-small">
+            <h2 class="modal-title" style="color: var(--neon-cyan);">参加リクエスト</h2>
+            <p style="text-align: center; margin: 20px 0; color: var(--text-color);">
+                <span id="newPlayerName" style="color: var(--neon-green);"></span>さんが<br>参戦を望んでいます
+            </p>
+            <div class="modal-buttons">
+                <button class="btn" id="acceptPlayerBtn">受け入れる</button>
+                <button class="btn btn-secondary" id="rejectPlayerBtn">拒否する</button>
+            </div>
         </div>
     </div>
 
@@ -1572,6 +1869,7 @@
                 this.bgmGain = null;
                 this.initialized = false;
                 this.bgmVolume = 0.3; // デフォルト30%
+                this.unlocked = false;
             }
 
             init() {
@@ -1590,11 +1888,36 @@
                 this.bgmGain.gain.value = this.bgmVolume * 0.5; // 0.5は内部調整係数
                 
                 this.initialized = true;
+                
+                // iOS/モバイル向けアンロック処理
+                this.unlockAudio();
+            }
+            
+            // iOS/モバイルでスピーカーから音を出すためのアンロック処理
+            unlockAudio() {
+                if (this.unlocked) return;
+                
+                // 無音を再生してオーディオをアンロック
+                const silentBuffer = this.audioContext.createBuffer(1, 1, 22050);
+                const source = this.audioContext.createBufferSource();
+                source.buffer = silentBuffer;
+                source.connect(this.audioContext.destination);
+                source.start(0);
+                
+                // iOS Safari対策: 空のHTML5 Audioも再生
+                const silentAudio = new Audio();
+                silentAudio.play().catch(() => {});
+                
+                this.unlocked = true;
             }
 
             resume() {
                 if (this.audioContext && this.audioContext.state === 'suspended') {
                     this.audioContext.resume();
+                }
+                // 再度アンロックを試行
+                if (this.audioContext && !this.unlocked) {
+                    this.unlockAudio();
                 }
             }
 
@@ -1641,6 +1964,16 @@
             playClick() {
                 this.playTone(600, 0.1, 'square', 0.1);
                 setTimeout(() => this.playTone(900, 0.05, 'square', 0.08), 50);
+            }
+
+            playRegisterSuccess() {
+                // ピロン♪という登録成功音
+                if (!this.seEnabled) return;
+                this.init();
+                this.resume();
+                
+                this.playTone(880, 0.15, 'sine', 0.1);
+                setTimeout(() => this.playTone(1174, 0.2, 'sine', 0.12), 100);
             }
 
             playPlace() {
@@ -1808,6 +2141,9 @@
             }
 
             toggleBGM() {
+                this.init();
+                this.resume();
+                
                 this.bgmEnabled = !this.bgmEnabled;
                 
                 if (this.bgmEnabled) {
@@ -1823,6 +2159,9 @@
             }
 
             toggleSE() {
+                this.init();
+                this.resume();
+                
                 this.seEnabled = !this.seEnabled;
                 
                 // Save preference
@@ -1854,10 +2193,11 @@
             deviceId: null,
             
             // Game settings
-            gameMode: null, // 'solo', 'local'
+            gameMode: null, // 'solo', 'local', 'multi'
             cpuLevel: 'normal',
             winLength: 4,
             timerSetting: 0,
+            multiTimerSetting: '30', // マルチプレイ用タイマー設定
             playerCount: 2,
             
             // Board state
@@ -1866,6 +2206,7 @@
             currentPlayer: 0,
             players: [],
             gameActive: false,
+            isPlacing: false, // ブロック配置中フラグ（連続クリック防止）
             
             // Timer
             timeLeft: 0,
@@ -1902,29 +2243,93 @@
                 });
             },
             
-            // ユーザー登録（デバイスIDと紐付け）
-            registerUser(username) {
+            // ユーザー登録またはログイン（Firebase連携）- オンラインプレゼンス付き
+            async registerUser(username) {
                 const deviceId = this.getDeviceId();
-                const users = this.getUsers();
+                const sanitizedName = this.sanitizeUsername(username);
                 
-                // 同一デバイス内で重複チェック
-                if (users.some(u => u.username === username)) {
-                    return { success: false, error: 'このネームは既に使用されています' };
+                try {
+                    // Firebaseでユーザー確認
+                    const snapshot = await database.ref('users/' + sanitizedName).once('value');
+                    
+                    if (snapshot.exists()) {
+                        const existingUser = snapshot.val();
+                        
+                        // 他のデバイスがオンラインかチェック
+                        if (existingUser.online && existingUser.deviceId !== deviceId) {
+                            return { success: false, error: 'このユーザー名は現在使用中です' };
+                        }
+                        
+                        // ログインとして扱う
+                        await database.ref('users/' + sanitizedName).update({
+                            deviceId: deviceId,
+                            online: true,
+                            lastLogin: Date.now()
+                        });
+                    } else {
+                        // 新規ユーザー登録
+                        await database.ref('users/' + sanitizedName).set({
+                            username: username,
+                            deviceId: deviceId,
+                            online: true,
+                            createdAt: Date.now(),
+                            lastLogin: Date.now()
+                        });
+                    }
+                    
+                    // 切断時にオフラインにする（Firebase onDisconnect）
+                    database.ref('users/' + sanitizedName + '/online').onDisconnect().set(false);
+                    
+                    // ローカルにも保存
+                    this.saveLocalUser(username, deviceId);
+                    
+                    // 現在のユーザー名を保存（ログアウト処理用）
+                    this.currentUsername = sanitizedName;
+                    
+                    return { success: true, deviceId: deviceId, isLogin: snapshot.exists() };
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    return { success: false, error: '登録に失敗しました。再試行してください。' };
+                }
+            },
+            
+            // ログアウト（オフラインに設定）
+            async logout() {
+                if (this.currentUsername) {
+                    try {
+                        await database.ref('users/' + this.currentUsername + '/online').set(false);
+                    } catch (e) {
+                        console.error('Logout error:', e);
+                    }
+                    this.currentUsername = null;
+                }
+            },
+            
+            // 現在ログイン中のユーザー名
+            currentUsername: null,
+            
+            // ローカルにユーザー保存
+            saveLocalUser(username, deviceId) {
+                const users = this.getUsers();
+                const existingIndex = users.findIndex(u => u.username === username);
+                
+                if (existingIndex >= 0) {
+                    users[existingIndex].deviceId = deviceId;
+                } else {
+                    users.push({
+                        username: username,
+                        deviceId: deviceId,
+                        createdAt: Date.now()
+                    });
                 }
                 
-                // 新規登録
-                users.push({
-                    username: username,
-                    deviceId: deviceId,
-                    createdAt: Date.now()
-                });
-                
                 localStorage.setItem('linkedblocks_users', JSON.stringify(users));
-                
-                // 現在のログインユーザーとして保存
                 localStorage.setItem('linkedblocks_current_user', username);
-                
-                return { success: true, deviceId: deviceId };
+            },
+            
+            // ユーザー名をFirebaseキーとして使用可能な形式に変換
+            sanitizeUsername(username) {
+                return username.replace(/[.#$[\]]/g, '_');
             },
             
             // 登録済みユーザーでログイン
@@ -1965,51 +2370,673 @@
             }
         };
 
-        // ==================== SYNC LAYER (ABSTRACTION) ====================
+        // Firebaseから受け取ったボードデータを2次元配列に変換
+        function convertFirebaseBoard(data) {
+            if (!data) return null;
+            
+            const size = GameState.boardSize || 7;
+            const board = [];
+            
+            for (let y = 0; y < size; y++) {
+                const row = [];
+                for (let x = 0; x < size; x++) {
+                    let cell = null;
+                    
+                    if (data[y] !== undefined && data[y] !== null) {
+                        if (Array.isArray(data[y])) {
+                            cell = data[y][x];
+                        } else if (typeof data[y] === 'object') {
+                            cell = data[y][x];
+                        }
+                    }
+                    
+                    // null, undefined以外の数値のみ有効
+                    row[x] = (cell !== null && cell !== undefined && typeof cell === 'number') ? cell : null;
+                }
+                board[y] = row;
+            }
+            
+            return board;
+        }
+
+        // ==================== SYNC LAYER (FIREBASE IMPLEMENTATION) ====================
         /**
-         * 同期層インターフェース
-         * 現在はローカル実装（単一端末）
-         * 将来WebSocket実装に差し替え可能
-         * 
-         * 実装時に差し替えるメソッド:
-         * - SyncLayer.connect(roomId) - ルームに接続
-         * - SyncLayer.disconnect() - 切断
-         * - SyncLayer.sendMove(x, y) - 手を送信
-         * - SyncLayer.onMove(callback) - 相手の手を受信
-         * - SyncLayer.onPlayerJoin(callback) - プレイヤー参加通知
-         * - SyncLayer.onPlayerLeave(callback) - プレイヤー退席通知
+         * Firebase Realtime Database を使用したマルチプレイ同期
          */
         const SyncLayer = {
-            // 現在の実装: ローカルのみ（同一端末交代プレイ）
-            isOnline: false,
+            isOnline: true,
+            roomId: null,
+            roomRef: null,
+            playerIndex: null,
+            listeners: {},
+            heartbeatInterval: null,
             
-            connect(roomId) {
-                // WebSocket実装時: ws.connect(roomId)
-                console.log('[SyncLayer] Local mode - no connection needed');
-                return Promise.resolve();
+            // ルームに接続
+            async connect(roomId) {
+                this.roomId = roomId;
+                this.roomRef = database.ref('rooms/' + roomId);
+                
+                try {
+                    const snapshot = await this.roomRef.once('value');
+                    const roomData = snapshot.val();
+                    
+                    // アクティブなプレイヤーがいるかチェック（30秒以内にlastActiveがあるか）
+                    const hasActivePlayers = roomData && roomData.players && roomData.players.some(p => {
+                        if (!p || !p.online) return false;
+                        // lastActiveが30秒以内ならアクティブとみなす
+                        if (p.lastActive && (Date.now() - p.lastActive < 30000)) return true;
+                        return false;
+                    });
+                    
+                    // ルームが存在しない、または古いルーム（1時間以上前）、またはアクティブプレイヤーがいないならリセット
+                    const shouldCreateNew = !roomData || 
+                        (Date.now() - roomData.createdAt > 60 * 60 * 1000) ||
+                        !hasActivePlayers;
+                    
+                    if (shouldCreateNew) {
+                        // 新規ルーム作成（または古いルームをリセット）
+                        this.playerIndex = 0;
+                        await this.roomRef.set({
+                            createdAt: Date.now(),
+                            status: 'waiting',
+                            players: [{
+                                name: GameState.username || 'PLAYER 1',
+                                index: 0,
+                                online: true,
+                                lastActive: Date.now()
+                            }],
+                            currentPlayer: 0,
+                            board: [],
+                            winLength: GameState.winLength,
+                            timerSetting: GameState.multiTimerSetting || '30',
+                            settings: {
+                                winLength: GameState.winLength,
+                                timer: GameState.multiTimerSetting || '30'
+                            }
+                        });
+                    } else {
+                        // 既存ルームに参加
+                        const players = roomData.players || [];
+                        
+                        // オンラインプレイヤー数をカウント
+                        const onlinePlayers = players.filter(p => p && p.online);
+                        
+                        if (onlinePlayers.length >= 3) {
+                            throw new Error('ルームが満員です');
+                        }
+                        
+                        // 同じユーザー名のオンラインプレイヤーがいるかチェック
+                        const myName = GameState.username || 'GUEST';
+                        const duplicateName = onlinePlayers.find(p => p.name === myName);
+                        if (duplicateName) {
+                            throw new Error('同じユーザー名のプレイヤーが既にルームにいます');
+                        }
+                        
+                        // ゲーム進行中またはルーレット中の場合は観戦者として待機
+                        if (roomData.status === 'playing' || roomData.status === 'roulette') {
+                            // 空きがあれば観戦者として登録
+                            if (onlinePlayers.length < 3) {
+                                // 観戦者として登録
+                                await this.roomRef.child('spectators/' + myName).set({
+                                    name: myName,
+                                    timestamp: Date.now()
+                                });
+                                
+                                return { success: true, playerIndex: -1, spectator: true };
+                            } else {
+                                throw new Error('ルームが満員です');
+                            }
+                        }
+                        
+                        // ゲーム終了後（再戦待機中）の場合は参加リクエストを送信
+                        if (roomData.status === 'ended') {
+                            await this.roomRef.child('pendingPlayer').set({
+                                name: myName,
+                                timestamp: Date.now()
+                            });
+                            
+                            // 参加リクエストの承認を待つ
+                            return { success: true, playerIndex: -1, pending: true };
+                        }
+                        
+                        // 空きスロットを探す（オフラインプレイヤーの位置を再利用）
+                        let slotIndex = players.findIndex(p => !p || !p.online);
+                        if (slotIndex === -1) {
+                            slotIndex = players.length;
+                        }
+                        
+                        this.playerIndex = slotIndex;
+                        
+                        // プレイヤーを追加または更新
+                        players[slotIndex] = {
+                            name: GameState.username || ('PLAYER ' + (slotIndex + 1)),
+                            index: slotIndex,
+                            online: true,
+                            lastActive: Date.now()
+                        };
+                        
+                        await this.roomRef.update({ players });
+                        
+                        // 再戦待機中の場合、自動的にrematchReadyを設定
+                        if (roomData.rematchReady) {
+                            await this.roomRef.child('rematchReady/' + slotIndex).set(true);
+                        }
+                    }
+                    
+                    // 切断時の処理を設定
+                    this.roomRef.child('players/' + this.playerIndex + '/online').onDisconnect().set(false);
+                    
+                    // 定期的にlastActiveを更新（ハートビート）
+                    this.heartbeatInterval = setInterval(() => {
+                        if (this.roomRef && this.playerIndex !== null) {
+                            this.roomRef.child('players/' + this.playerIndex + '/lastActive').set(Date.now());
+                        }
+                    }, 10000); // 10秒ごと
+                    
+                    // リスナー設定
+                    this.setupListeners();
+                    
+                    return { success: true, playerIndex: this.playerIndex };
+                } catch (error) {
+                    console.error('Room connection error:', error);
+                    return { success: false, error: error.message };
+                }
             },
             
+            // リスナー設定
+            setupListeners() {
+                // プレイヤー参加/退席監視
+                this.roomRef.child('players').on('value', (snapshot) => {
+                    const players = snapshot.val() || [];
+                    if (this.listeners.onPlayersUpdate) {
+                        this.listeners.onPlayersUpdate(players);
+                    }
+                    
+                    // オフラインプレイヤーをチェック
+                    players.forEach((player, index) => {
+                        if (player && !player.online && this.listeners.onPlayerLeave) {
+                            this.listeners.onPlayerLeave(player, index);
+                        }
+                    });
+                });
+                
+                // 手の監視
+                this.roomRef.child('lastMove').on('value', (snapshot) => {
+                    const move = snapshot.val();
+                    if (move && move.playerIndex !== this.playerIndex && this.listeners.onMove) {
+                        this.listeners.onMove(move);
+                    }
+                });
+                
+                // ゲーム状態の監視
+                this.roomRef.child('status').on('value', (snapshot) => {
+                    const status = snapshot.val();
+                    if (this.listeners.onStatusChange) {
+                        this.listeners.onStatusChange(status);
+                    }
+                });
+                
+                // ボード状態の監視
+                this.roomRef.child('board').on('value', (snapshot) => {
+                    const board = snapshot.val();
+                    if (board && this.listeners.onBoardUpdate) {
+                        this.listeners.onBoardUpdate(board);
+                    }
+                });
+                
+                // 現在のターン監視
+                this.roomRef.child('currentPlayer').on('value', (snapshot) => {
+                    const currentPlayer = snapshot.val();
+                    if (currentPlayer !== null && this.listeners.onTurnChange) {
+                        this.listeners.onTurnChange(currentPlayer);
+                    }
+                });
+                
+                // 勝者監視（勝利セル情報も取得）
+                this.roomRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.winner !== null && data.winner !== undefined && this.listeners.onGameEnd) {
+                        this.listeners.onGameEnd(data.winner, data.winCells);
+                    }
+                });
+                
+                // 参加リクエスト監視
+                this.roomRef.child('pendingPlayer').on('value', (snapshot) => {
+                    const pending = snapshot.val();
+                    if (pending && this.listeners.onPendingPlayer) {
+                        this.listeners.onPendingPlayer(pending);
+                    }
+                });
+                
+                // 再戦準備状態監視
+                this.roomRef.child('rematchReady').on('value', (snapshot) => {
+                    const rematchReady = snapshot.val();
+                    if (this.listeners.onRematchUpdate) {
+                        this.listeners.onRematchUpdate(rematchReady);
+                    }
+                });
+            },
+            
+            // 切断
             disconnect() {
-                // WebSocket実装時: ws.close()
-                console.log('[SyncLayer] Local mode - no disconnection needed');
+                // ハートビートを停止
+                if (this.heartbeatInterval) {
+                    clearInterval(this.heartbeatInterval);
+                    this.heartbeatInterval = null;
+                }
+                
+                if (this.roomRef) {
+                    this.roomRef.child('players').off();
+                    this.roomRef.child('lastMove').off();
+                    this.roomRef.child('status').off();
+                    this.roomRef.child('board').off();
+                    this.roomRef.child('currentPlayer').off();
+                    this.roomRef.child('pendingPlayer').off();
+                    this.roomRef.child('rematchReady').off();
+                    this.roomRef.off(); // ルーム全体のリスナーも解除
+                    
+                    // オンライン状態を更新
+                    if (this.playerIndex !== null) {
+                        this.roomRef.child('players/' + this.playerIndex + '/online').set(false);
+                    }
+                }
+                this.roomRef = null;
+                this.roomId = null;
+                this.playerIndex = null;
             },
             
-            sendMove(x, y, player) {
-                // WebSocket実装時: ws.send({ type: 'move', x, y, player })
-                // ローカルでは直接処理（placeBlockが呼ばれる）
+            // 手を送信
+            async sendMove(x, y, playerIndex) {
+                if (!this.roomRef) return;
+                
+                await this.roomRef.child('lastMove').set({
+                    x, y,
+                    playerIndex,
+                    timestamp: Date.now()
+                });
             },
             
-            onMove(callback) {
-                // WebSocket実装時: ws.on('move', callback)
-                // ローカルでは不要
+            // ボード状態を更新
+            async updateBoard(board) {
+                if (!this.roomRef) return;
+                await this.roomRef.child('board').set(board);
             },
             
-            onPlayerJoin(callback) {
-                // WebSocket実装時: ws.on('player_join', callback)
+            // ターンを更新
+            async updateTurn(playerIndex) {
+                if (!this.roomRef) return;
+                await this.roomRef.child('currentPlayer').set(playerIndex);
             },
             
-            onPlayerLeave(callback) {
-                // WebSocket実装時: ws.on('player_leave', callback)
+            // ゲーム開始（ランダム順番決定）
+            async startGame(settings) {
+                if (!this.roomRef) return;
+                const boardSize = settings.winLength + 3;
+                
+                // オンラインプレイヤー数を取得してランダムな開始プレイヤーを決定
+                const snapshot = await this.roomRef.child('players').once('value');
+                const players = snapshot.val() || [];
+                const onlineIndices = players
+                    .map((p, i) => p && p.online ? i : -1)
+                    .filter(i => i >= 0);
+                
+                // ランダムに開始プレイヤーを選択
+                const randomStartPlayer = onlineIndices[Math.floor(Math.random() * onlineIndices.length)];
+                
+                await this.roomRef.update({
+                    status: 'roulette', // まずルーレット状態に
+                    board: Array(boardSize).fill(null).map(() => Array(boardSize).fill(null)),
+                    boardSize: boardSize,
+                    currentPlayer: randomStartPlayer,
+                    winLength: settings.winLength,
+                    timerSetting: settings.timer || 'none',
+                    startedAt: Date.now(),
+                    spectators: null // 観戦者をリセット
+                });
+                
+                // 2秒後にプレイング状態に
+                setTimeout(async () => {
+                    await this.roomRef.child('status').set('playing');
+                }, 3000);
+            },
+            
+            // ゲーム終了
+            async endGame(winner, winCells = null) {
+                if (!this.roomRef) return;
+                await this.roomRef.update({
+                    status: 'ended',
+                    winner: winner,
+                    winCells: winCells,
+                    endedAt: Date.now(),
+                    rematchReady: {} // 再戦準備状態をリセット
+                });
+            },
+            
+            // 再戦準備（自分が再戦ボタンを押した）
+            async setRematchReady() {
+                if (!this.roomRef || this.playerIndex === null) return;
+                await this.roomRef.child('rematchReady/' + this.playerIndex).set(true);
+            },
+            
+            // 再戦準備をキャンセル
+            async cancelRematchReady() {
+                if (!this.roomRef || this.playerIndex === null) return;
+                await this.roomRef.child('rematchReady/' + this.playerIndex).remove();
+                await this.roomRef.child('players/' + this.playerIndex + '/online').set(false);
+            },
+            
+            // 再戦開始（ホストが手動で呼び出す）
+            async startRematch() {
+                if (!this.roomRef) return;
+                
+                const snapshot = await this.roomRef.once('value');
+                const roomData = snapshot.val();
+                const boardSize = (roomData.winLength || 4) + 3;
+                
+                const players = roomData.players || [];
+                const rematchReady = roomData.rematchReady || {};
+                
+                console.log('startRematch - players:', players);
+                console.log('startRematch - rematchReady:', rematchReady);
+                
+                // 準備完了者のインデックスを取得（Firebaseのキーは文字列なので両方チェック）
+                const readyIndices = [];
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i] && players[i].online) {
+                        // 文字列キーと数値キーの両方をチェック
+                        if (rematchReady[i] === true || rematchReady[String(i)] === true) {
+                            readyIndices.push(i);
+                        }
+                    }
+                }
+                
+                console.log('startRematch - readyIndices:', readyIndices);
+                
+                if (readyIndices.length < 2) {
+                    console.log('startRematch - 2人未満のため開始できません');
+                    return;
+                }
+                
+                // 準備完了していないプレイヤーをオフラインにする
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i] && players[i].online && !readyIndices.includes(i)) {
+                        players[i].online = false;
+                    }
+                }
+                
+                const randomStartPlayer = readyIndices[Math.floor(Math.random() * readyIndices.length)];
+                
+                await this.roomRef.update({
+                    players: players,
+                    status: 'roulette',
+                    board: Array(boardSize).fill(null).map(() => Array(boardSize).fill(null)),
+                    boardSize: boardSize,
+                    currentPlayer: randomStartPlayer,
+                    startedAt: Date.now(),
+                    rematchReady: null,
+                    winner: null,
+                    winCells: null,
+                    spectators: null
+                });
+                
+                setTimeout(async () => {
+                    await this.roomRef.child('status').set('playing');
+                }, 3000);
+            },
+            
+            // 参加リクエストを送信（新規参加者が使用）
+            async requestJoin(playerName) {
+                if (!this.roomRef) return;
+                await this.roomRef.child('pendingPlayer').set({
+                    name: playerName,
+                    timestamp: Date.now()
+                });
+            },
+            
+            // 参加リクエストを承認
+            async acceptPendingPlayer() {
+                if (!this.roomRef) return;
+                const snapshot = await this.roomRef.child('pendingPlayer').once('value');
+                const pending = snapshot.val();
+                if (!pending) return false;
+                
+                // 空きスロットを探す
+                const playersSnapshot = await this.roomRef.child('players').once('value');
+                const players = playersSnapshot.val() || [];
+                
+                let slotIndex = players.findIndex(p => !p || !p.online);
+                if (slotIndex === -1 && players.length < 3) {
+                    slotIndex = players.length;
+                }
+                
+                if (slotIndex === -1) return false;
+                
+                // プレイヤーを追加
+                players[slotIndex] = {
+                    name: pending.name,
+                    index: slotIndex,
+                    online: true
+                };
+                
+                await this.roomRef.update({
+                    players: players,
+                    pendingPlayer: null
+                });
+                
+                return true;
+            },
+            
+            // 参加リクエストを拒否
+            async rejectPendingPlayer() {
+                if (!this.roomRef) return;
+                await this.roomRef.child('pendingPlayer').set(null);
+            },
+            
+            // オンラインプレイヤー数を取得
+            async getOnlinePlayerCount() {
+                if (!this.roomRef) return 0;
+                const snapshot = await this.roomRef.child('players').once('value');
+                const players = snapshot.val() || [];
+                return players.filter(p => p && p.online).length;
+            },
+            
+            // ルーム削除
+            async deleteRoom() {
+                if (!this.roomRef) return;
+                await this.roomRef.remove();
+                this.disconnect();
+            },
+            
+            // イベントリスナー登録
+            onMove(callback) { this.listeners.onMove = callback; },
+            onPlayersUpdate(callback) { this.listeners.onPlayersUpdate = callback; },
+            onPlayerLeave(callback) { this.listeners.onPlayerLeave = callback; },
+            onStatusChange(callback) { this.listeners.onStatusChange = callback; },
+            onBoardUpdate(callback) { this.listeners.onBoardUpdate = callback; },
+            onTurnChange(callback) { this.listeners.onTurnChange = callback; },
+            onGameEnd(callback) { this.listeners.onGameEnd = callback; },
+            onPendingPlayer(callback) { this.listeners.onPendingPlayer = callback; },
+            onRematchUpdate(callback) { this.listeners.onRematchUpdate = callback; },
+            
+            // 自分がホストかどうか（オンラインプレイヤーの中で最小インデックス）
+            async isHost() {
+                if (!this.roomRef || this.playerIndex === null) return false;
+                
+                const snapshot = await this.roomRef.child('players').once('value');
+                const players = snapshot.val() || [];
+                
+                // オンラインプレイヤーのインデックスを取得
+                const onlineIndices = [];
+                players.forEach((p, i) => {
+                    if (p && p.online) {
+                        onlineIndices.push(i);
+                    }
+                });
+                
+                if (onlineIndices.length === 0) return false;
+                
+                // 最小インデックスが自分ならホスト
+                const minIndex = Math.min(...onlineIndices);
+                return this.playerIndex === minIndex;
+            }
+        };
+
+        // ==================== FIREBASE RANKING SYSTEM ====================
+        const FirebaseRanking = {
+            // ソロランキングに勝利を追加
+            async addSoloWin(username) {
+                if (!username) return;
+                
+                const rankingRef = database.ref('rankings/solo/' + this.sanitizeUsername(username));
+                const snapshot = await rankingRef.once('value');
+                const current = snapshot.val() || { wins: 0 };
+                
+                await rankingRef.set({
+                    name: username,
+                    wins: current.wins + 1,
+                    lastWin: Date.now()
+                });
+            },
+            
+            // マルチランキングに勝利を追加
+            async addMultiWin(username) {
+                if (!username) return;
+                
+                const rankingRef = database.ref('rankings/multi/' + this.sanitizeUsername(username));
+                const snapshot = await rankingRef.once('value');
+                const current = snapshot.val() || { wins: 0 };
+                
+                await rankingRef.set({
+                    name: username,
+                    wins: current.wins + 1,
+                    lastWin: Date.now()
+                });
+            },
+            
+            // ソロランキング取得
+            async getSoloRankings(limit = 10) {
+                const snapshot = await database.ref('rankings/solo')
+                    .orderByChild('wins')
+                    .limitToLast(limit)
+                    .once('value');
+                
+                const rankings = [];
+                snapshot.forEach(child => {
+                    rankings.push(child.val());
+                });
+                
+                return rankings.sort((a, b) => b.wins - a.wins);
+            },
+            
+            // マルチランキング取得
+            async getMultiRankings(limit = 10) {
+                const snapshot = await database.ref('rankings/multi')
+                    .orderByChild('wins')
+                    .limitToLast(limit)
+                    .once('value');
+                
+                const rankings = [];
+                snapshot.forEach(child => {
+                    rankings.push(child.val());
+                });
+                
+                return rankings.sort((a, b) => b.wins - a.wins);
+            },
+            
+            // ユーザー名をFirebaseキーとして使用可能な形式に変換
+            sanitizeUsername(username) {
+                return username.replace(/[.#$[\]]/g, '_');
+            }
+        };
+        
+        // ==================== FIREBASE USER MANAGEMENT ====================
+        const FirebaseUsers = {
+            // ユーザー登録をFirebaseに保存
+            async registerUser(username) {
+                if (!username) return;
+                
+                const userRef = database.ref('users/' + this.sanitizeUsername(username));
+                const snapshot = await userRef.once('value');
+                
+                // 既存ユーザーでなければ新規登録
+                if (!snapshot.exists()) {
+                    await userRef.set({
+                        name: username,
+                        registeredAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            },
+            
+            // 全ユーザー一覧を取得
+            async getAllUsers() {
+                const snapshot = await database.ref('users').once('value');
+                const users = [];
+                
+                snapshot.forEach(child => {
+                    users.push(child.val());
+                });
+                
+                return users;
+            },
+            
+            // 日時をフォーマット（曜日付き）
+            formatDateTime(timestamp) {
+                const date = new Date(timestamp);
+                const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+                
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const weekday = weekdays[date.getDay()];
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}年${month}月${day}日(${weekday}) ${hours}:${minutes}分`;
+            },
+            
+            // ユーザー一覧を表示用フォーマットで取得
+            async getUsersFormatted(sortOrder = 'asc') {
+                const users = await this.getAllUsers();
+                
+                // ソート
+                users.sort((a, b) => {
+                    if (sortOrder === 'asc') {
+                        return a.registeredAt - b.registeredAt;
+                    } else {
+                        return b.registeredAt - a.registeredAt;
+                    }
+                });
+                
+                // フォーマット
+                return users.map(user => ({
+                    name: user.name,
+                    registeredAt: this.formatDateTime(user.registeredAt)
+                }));
+            },
+            
+            // テキスト形式で出力
+            async exportUsersText(sortOrder = 'asc') {
+                const users = await this.getUsersFormatted(sortOrder);
+                
+                let text = `LINKED BLOCKS 登録ユーザー一覧\n`;
+                text += `出力日時：${this.formatDateTime(Date.now())}\n`;
+                text += `総ユーザー数：${users.length}名\n`;
+                text += `並び順：${sortOrder === 'asc' ? '登録日時 昇順' : '登録日時 降順'}\n`;
+                text += `\n${'='.repeat(40)}\n\n`;
+                
+                users.forEach((user, index) => {
+                    text += `---\n`;
+                    text += `ユーザー名：${user.name}\n`;
+                    text += `登録日時：${user.registeredAt}\n`;
+                    text += `---\n\n`;
+                });
+                
+                return text;
+            },
+            
+            // ユーザー名をFirebaseキーとして使用可能な形式に変換
+            sanitizeUsername(username) {
+                return username.replace(/[.#$[\]]/g, '_');
             }
         };
 
@@ -2031,7 +3058,13 @@
             const notif = document.getElementById('notification');
             notif.textContent = message;
             notif.className = 'notification active ' + type;
-            audio.playError();
+            
+            // タイプによって音を変える
+            if (type === 'success' || type === 'info') {
+                // 成功・情報通知は音を鳴らさない（既に別の音が鳴っている場合が多い）
+            } else {
+                audio.playError();
+            }
             
             setTimeout(() => {
                 notif.classList.remove('active');
@@ -2039,6 +3072,7 @@
         }
 
         function loadRankings() {
+            // ローカルキャッシュから読み込み（オフライン対応）
             const saved = localStorage.getItem('linkedblocks_rankings');
             GameState.rankings = saved ? JSON.parse(saved) : [];
         }
@@ -2047,41 +3081,101 @@
             localStorage.setItem('linkedblocks_rankings', JSON.stringify(GameState.rankings));
         }
 
-        function addWin(username) {
+        async function addWin(username, isMulti = false) {
             if (!username || !GameState.isRegistered) return;
             
-            const existing = GameState.rankings.find(r => r.name === username);
-            if (existing) {
-                existing.wins++;
-            } else {
-                GameState.rankings.push({ name: username, wins: 1 });
+            try {
+                if (isMulti) {
+                    await FirebaseRanking.addMultiWin(username);
+                } else {
+                    await FirebaseRanking.addSoloWin(username);
+                }
+            } catch (error) {
+                console.error('Failed to update ranking:', error);
+                // ローカルにもバックアップ保存
+                const existing = GameState.rankings.find(r => r.name === username);
+                if (existing) {
+                    existing.wins++;
+                } else {
+                    GameState.rankings.push({ name: username, wins: 1 });
+                }
+                saveRankings();
             }
-            
-            GameState.rankings.sort((a, b) => b.wins - a.wins);
-            GameState.rankings = GameState.rankings.slice(0, 123);
-            saveRankings();
         }
 
-        function renderRankings() {
-            const list = document.getElementById('rankingList');
-            list.innerHTML = '';
+        async function renderRankings() {
+            const soloList = document.getElementById('soloRankingList');
+            const multiList = document.getElementById('multiRankingList');
             
-            const top10 = GameState.rankings.slice(0, 10);
+            soloList.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">読み込み中...</p>';
+            multiList.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">読み込み中...</p>';
             
-            if (top10.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">まだランキングデータがありません</p>';
+            try {
+                // ソロランキング取得
+                const soloRankings = await FirebaseRanking.getSoloRankings(10);
+                renderRankingList(soloList, soloRankings, '一人プレイ');
+                
+                // マルチランキング取得
+                const multiRankings = await FirebaseRanking.getMultiRankings(10);
+                renderRankingList(multiList, multiRankings, 'マルチプレイ');
+            } catch (error) {
+                console.error('Failed to load rankings:', error);
+                soloList.innerHTML = '<p style="color: var(--neon-red); text-align: center; padding: 20px;">読み込みエラー</p>';
+                multiList.innerHTML = '<p style="color: var(--neon-red); text-align: center; padding: 20px;">読み込みエラー</p>';
+            }
+        }
+
+        function renderRankingList(container, rankings, type) {
+            container.innerHTML = '';
+            
+            if (!rankings || rankings.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-dim); text-align: center; padding: 20px;">まだ${type}のランキングデータがありません</p>`;
                 return;
             }
             
-            top10.forEach((entry, i) => {
+            // 順位を計算（同じ勝利数は同じ順位）
+            let currentRank = 1;
+            let displayCount = 0;
+            
+            rankings.forEach((entry, i) => {
+                // 10位までのみ表示
+                if (displayCount >= 10) return;
+                
+                // 前のエントリと勝利数が異なる場合、順位を更新
+                if (i > 0 && entry.wins < rankings[i - 1].wins) {
+                    currentRank = i + 1;
+                }
+                
+                // 4位以下は表示しない（ただしFirebaseには保存されている）
+                // → 修正：10位まで表示するが、色は3位まで
+                
                 const item = document.createElement('div');
                 item.className = 'ranking-item';
+                
+                // 順位に応じた色を設定（同じ勝利数なら同じ色）
+                let rankClass = '';
+                if (currentRank === 1) {
+                    rankClass = 'rank-gold';
+                } else if (currentRank === 2) {
+                    rankClass = 'rank-silver';
+                } else if (currentRank === 3) {
+                    rankClass = 'rank-bronze';
+                }
+                
+                if (rankClass) {
+                    item.classList.add(rankClass);
+                }
+                
                 item.innerHTML = `
-                    <span class="rank">#${i + 1}</span>
+                    <span class="rank">#${currentRank}</span>
                     <span class="ranking-name">${entry.name}</span>
-                    <span class="ranking-wins">${entry.wins} WIN</span>
+                    <span class="ranking-wins">
+                        <span class="wins-label">勝利数</span>
+                        <span class="wins-count">${entry.wins}</span>
+                    </span>
                 `;
-                list.appendChild(item);
+                container.appendChild(item);
+                displayCount++;
             });
         }
 
@@ -2302,6 +3396,9 @@
         function handleCellClick(x, y) {
             if (!GameState.gameActive) return;
             
+            // 配置処理中は無視（連続クリック防止）
+            if (GameState.isPlacing) return;
+            
             // canPlaceAtで判定（唯一の判定関数）
             if (!canPlaceAt(x, y)) {
                 return;
@@ -2310,13 +3407,24 @@
             // CPU's turn in solo mode
             if (GameState.gameMode === 'solo' && GameState.currentPlayer === 1) return;
             
+            // マルチプレイ時は自分のターンのみ操作可能
+            if (GameState.gameMode === 'multi') {
+                if (GameState.currentPlayer !== SyncLayer.playerIndex) {
+                    return; // 自分のターンではない
+                }
+            }
+            
             placeBlock(x, y);
         }
 
-        function placeBlock(x, y) {
+        async function placeBlock(x, y) {
+            // 配置中フラグをON
+            GameState.isPlacing = true;
+            
             // ===== canPlaceAtで判定 =====
             if (!canPlaceAt(x, y)) {
                 console.error('配置不可:', x, y);
+                GameState.isPlacing = false;
                 return false;
             }
             
@@ -2326,18 +3434,50 @@
             audio.playPlace();
             renderBoard();
             
+            // マルチプレイ時はFirebaseに同期
+            if (GameState.gameMode === 'multi') {
+                await SyncLayer.updateBoard(GameState.board);
+            }
+            
             const winResult = checkWin(x, y);
             if (winResult) {
+                // マルチプレイ時は勝敗と勝利セルをFirebaseに同期
+                if (GameState.gameMode === 'multi') {
+                    await SyncLayer.endGame(winResult.player, winResult.cells);
+                }
+                GameState.isPlacing = false;
                 endGame(winResult);
                 return true;
             }
             
             if (checkDraw()) {
+                // マルチプレイ時は引き分けをFirebaseに同期
+                if (GameState.gameMode === 'multi') {
+                    await SyncLayer.endGame(-1); // -1 = 引き分け
+                }
+                GameState.isPlacing = false;
                 endGame(null, true);
                 return true;
             }
             
-            nextTurn();
+            // 次のターンへ
+            if (GameState.gameMode === 'multi') {
+                // マルチプレイ: オンラインプレイヤーのインデックスから次のターンを計算
+                const onlineIndices = GameState.players.map(p => p.originalIndex);
+                const currentIdx = onlineIndices.indexOf(GameState.currentPlayer);
+                const nextIdx = (currentIdx + 1) % onlineIndices.length;
+                const nextPlayer = onlineIndices[nextIdx];
+                
+                console.log('ターン変更:', GameState.currentPlayer, '->', nextPlayer, 'onlineIndices:', onlineIndices);
+                
+                await SyncLayer.updateTurn(nextPlayer);
+                // 配置中フラグはonTurnChangeで自動的にリセットされる
+            } else {
+                // ソロ/ローカル: ローカルでターン変更
+                GameState.isPlacing = false;
+                nextTurn();
+            }
+            
             return true;
         }
 
@@ -2381,11 +3521,16 @@
             return getAllValidMoves().length === 0;
         }
 
-        function nextTurn() {
+        async function nextTurn() {
             GameState.currentPlayer = (GameState.currentPlayer + 1) % GameState.players.length;
             updateTurnDisplay();
             resetTimer();
             audio.playTurnChange();
+            
+            // マルチプレイ時はFirebaseに同期
+            if (GameState.gameMode === 'multi') {
+                await SyncLayer.updateTurn(GameState.currentPlayer);
+            }
             
             if (GameState.gameMode === 'solo' && GameState.currentPlayer === 1) {
                 setTimeout(cpuMove, 500 + Math.random() * 500);
@@ -2683,7 +3828,7 @@
             GameState.timeLeft = GameState.timerSetting;
             updateTimerDisplay();
             
-            GameState.timerInterval = setInterval(() => {
+            GameState.timerInterval = setInterval(async () => {
                 GameState.timeLeft--;
                 updateTimerDisplay();
                 
@@ -2694,7 +3839,23 @@
                 if (GameState.timeLeft <= 0) {
                     // Skip turn
                     clearInterval(GameState.timerInterval);
-                    nextTurn();
+                    
+                    // マルチプレイ時: 自分のターンの場合のみターン変更を送信
+                    if (GameState.gameMode === 'multi') {
+                        if (GameState.currentPlayer === SyncLayer.playerIndex) {
+                            // オンラインプレイヤーのインデックスから次のターンを計算
+                            const onlineIndices = GameState.players.map(p => p.originalIndex);
+                            const currentIdx = onlineIndices.indexOf(GameState.currentPlayer);
+                            const nextIdx = (currentIdx + 1) % onlineIndices.length;
+                            const nextPlayer = onlineIndices[nextIdx];
+                            
+                            console.log('タイマー切れ ターン変更:', GameState.currentPlayer, '->', nextPlayer);
+                            await SyncLayer.updateTurn(nextPlayer);
+                        }
+                        // 他のプレイヤーはFirebaseの更新を待つ
+                    } else {
+                        nextTurn();
+                    }
                 }
             }, 1000);
         }
@@ -2723,8 +3884,13 @@
         function startGame() {
             GameState.gameActive = true;
             GameState.currentPlayer = 0;
+            GameState.isPlacing = false; // 配置中フラグをリセット
             
-            initBoard();
+            // マルチプレイ以外、またはボードが未初期化の場合のみinitBoard
+            if (GameState.gameMode !== 'multi' || !GameState.board || GameState.board.length !== GameState.boardSize) {
+                initBoard();
+            }
+            
             renderBoard();
             renderPlayersBar();
             updateTurnDisplay();
@@ -2817,61 +3983,232 @@
             board.appendChild(container);
         }
 
-        function endGame(winResult, isDraw = false) {
+        async function endGame(winResult, isDraw = false) {
             GameState.gameActive = false;
             stopTimer();
             
             if (isDraw) {
-                document.getElementById('winnerText').textContent = 'DRAW!';
+                document.getElementById('winnerText').textContent = '引き分け';
             } else {
                 // Highlight winning blocks
-                winResult.cells.forEach(([x, y]) => {
-                    const cellIndex = y * GameState.boardSize + x;
-                    const cell = document.querySelectorAll('.cell')[cellIndex];
-                    const block = cell.querySelector('.block');
-                    if (block) block.classList.add('winning');
-                });
-                
-                // Draw win line through the blocks
-                setTimeout(() => {
-                    drawWinLine(winResult.cells);
-                }, 100);
+                if (winResult.cells && winResult.cells.length > 0) {
+                    winResult.cells.forEach(([x, y]) => {
+                        const cellIndex = y * GameState.boardSize + x;
+                        const cell = document.querySelectorAll('.cell')[cellIndex];
+                        if (cell) {
+                            const block = cell.querySelector('.block');
+                            if (block) block.classList.add('winning');
+                        }
+                    });
+                    
+                    // Draw win line through the blocks
+                    setTimeout(() => {
+                        drawWinLine(winResult.cells);
+                    }, 100);
+                }
                 
                 const winner = GameState.players[winResult.player];
-                document.getElementById('winnerText').textContent = `WINNER: ${winner.name}`;
+                if (winner) {
+                    document.getElementById('winnerText').textContent = `WINNER: ${winner.name}`;
+                }
                 
                 // Add win to rankings if applicable
-                if (GameState.gameMode === 'solo' && winResult.player === 0 && 
-                    GameState.cpuLevel === 'strong' && GameState.isRegistered) {
-                    addWin(GameState.username);
+                if (GameState.isRegistered) {
+                    if (GameState.gameMode === 'solo' && winResult.player === 0 && 
+                        GameState.cpuLevel === 'strong') {
+                        // ソロ（CPU強）勝利
+                        await addWin(GameState.username, false);
+                    } else if (GameState.gameMode === 'multi' && 
+                               winResult.player === SyncLayer.playerIndex) {
+                        // マルチプレイ勝利
+                        await addWin(GameState.username, true);
+                    }
+                }
+                
+                // マルチプレイ時はFirebaseに終了を通知（自分が勝った場合のみ）
+                if (GameState.gameMode === 'multi' && winResult.player === SyncLayer.playerIndex) {
+                    await SyncLayer.endGame(winResult.player, winResult.cells);
                 }
                 
                 audio.playWin();
+            }
+            
+            // マルチプレイ時はオンラインプレイヤー数を確認
+            const rematchBtn = document.getElementById('rematchBtn');
+            const gameOverCountdown = document.getElementById('gameOverCountdown');
+            
+            if (GameState.gameMode === 'multi') {
+                const onlineCount = await SyncLayer.getOnlinePlayerCount();
+                if (onlineCount >= 2) {
+                    // 2人以上いれば再戦可能
+                    rematchBtn.style.display = 'block';
+                    rematchBtn.textContent = '再戦';
+                    
+                    // 10秒カウントダウン開始
+                    gameOverCountdown.style.display = 'block';
+                    startGameOverCountdown();
+                } else {
+                    // 1人なら再戦不可
+                    rematchBtn.style.display = 'none';
+                    gameOverCountdown.style.display = 'none';
+                }
+            } else {
+                rematchBtn.style.display = 'block';
+                rematchBtn.textContent = '再戦';
+                gameOverCountdown.style.display = 'none';
             }
             
             setTimeout(() => {
                 document.getElementById('gameOverOverlay').classList.add('active');
             }, 1500);
         }
+        
+        let gameOverCountdownInterval = null;
+        
+        function startGameOverCountdown() {
+            let countdown = 20;
+            const countdownEl = document.getElementById('gameOverCountdown');
+            countdownEl.textContent = countdown;
+            
+            if (gameOverCountdownInterval) {
+                clearInterval(gameOverCountdownInterval);
+            }
+            
+            gameOverCountdownInterval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(gameOverCountdownInterval);
+                    gameOverCountdownInterval = null;
+                    
+                    // 時間切れ - 強制退出
+                    document.getElementById('gameOverOverlay').classList.remove('active');
+                    SyncLayer.disconnect();
+                    returnToTitle();
+                    showNotification('時間切れのため退出しました', 'warning');
+                }
+            }, 1000);
+        }
+        
+        function stopGameOverCountdown() {
+            if (gameOverCountdownInterval) {
+                clearInterval(gameOverCountdownInterval);
+                gameOverCountdownInterval = null;
+            }
+            document.getElementById('gameOverCountdown').style.display = 'none';
+        }
 
-        function rematch() {
+        async function rematch() {
             document.getElementById('gameOverOverlay').classList.remove('active');
+            
+            // GAME SET画面のカウントダウンを停止
+            stopGameOverCountdown();
             
             // Remove win line
             const winLine = document.querySelector('.win-line-container');
             if (winLine) winLine.remove();
             
+            // マルチプレイの場合
+            if (GameState.gameMode === 'multi') {
+                const onlineCount = await SyncLayer.getOnlinePlayerCount();
+                
+                if (onlineCount < 2) {
+                    // 1人になった場合はタイトルに戻す
+                    showModal('aloneInRoomModal');
+                    return;
+                }
+                
+                // 再戦待機モーダルを表示
+                showRematchWaitingModal();
+                return;
+            }
+            
             startGame();
+        }
+        
+        async function showRematchWaitingModal() {
+            showModal('rematchWaitingModal');
+            
+            // ルームIDを表示
+            document.getElementById('rematchRoomId').textContent = SyncLayer.roomId;
+            
+            // Firebaseのステータスを'waiting'に変更（新規参加を受け入れるため）
+            await database.ref('rooms/' + SyncLayer.roomId + '/status').set('waiting');
+            
+            // 自分を再戦準備完了にする
+            await SyncLayer.setRematchReady();
+            
+            // プレイヤー状態を更新
+            updateRematchPlayerStatus();
+        }
+        
+        async function updateRematchPlayerStatus() {
+            const container = document.getElementById('rematchPlayerStatus');
+            
+            const snapshot = await database.ref('rooms/' + SyncLayer.roomId).once('value');
+            const roomData = snapshot.val();
+            if (!roomData) return;
+            
+            const players = roomData.players || [];
+            const rematchReady = roomData.rematchReady || {};
+            
+            console.log('updateRematchPlayerStatus - rematchReady:', rematchReady);
+            
+            container.innerHTML = '';
+            
+            // 準備完了しているプレイヤーのみ表示
+            let readyCount = 0;
+            const readyIndices = [];
+            
+            players.forEach((p, i) => {
+                if (!p || !p.online) return;
+                // 文字列キーと数値キーの両方をチェック
+                const isReady = rematchReady[i] === true || rematchReady[String(i)] === true;
+                if (!isReady) return;
+                
+                readyCount++;
+                readyIndices.push(i);
+                
+                const div = document.createElement('div');
+                div.className = 'waiting-player';
+                div.innerHTML = `
+                    <span class="player-index">P${i + 1}</span>
+                    <span class="player-name">${p.name}</span>
+                `;
+                container.appendChild(div);
+            });
+            
+            console.log('updateRematchPlayerStatus - readyCount:', readyCount, 'readyIndices:', readyIndices);
+            
+            // ホスト判定（準備完了者の中で最小のインデックス）
+            const isHost = readyIndices.length > 0 && readyIndices[0] === SyncLayer.playerIndex;
+            
+            // 2人以上で、ホストなら「ゲーム開始」ボタンを表示
+            const startBtn = document.getElementById('rematchStartBtn');
+            if (readyCount >= 2 && isHost) {
+                startBtn.style.display = 'block';
+            } else {
+                startBtn.style.display = 'none';
+            }
         }
 
         function returnToTitle() {
             document.getElementById('gameOverOverlay').classList.remove('active');
+            
+            // カウントダウンを停止
+            stopGameOverCountdown();
             
             // Remove win line
             const winLine = document.querySelector('.win-line-container');
             if (winLine) winLine.remove();
             
             stopTimer();
+            
+            // マルチプレイ時は切断
+            if (GameState.gameMode === 'multi') {
+                SyncLayer.disconnect();
+            }
             
             // フォームを完全にリセット
             document.getElementById('usernameInput').disabled = false;
@@ -2950,6 +4287,8 @@
             
             // BGM button (スマホ - ゲーム画面)
             document.getElementById('mobileBgmBtn').addEventListener('click', () => {
+                audio.init();
+                audio.resume();
                 const isOn = audio.toggleBGM();
                 document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
                 document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
@@ -2959,6 +4298,8 @@
             
             // BGM button (スマホ - タイトル画面)
             document.getElementById('mobileBgmBtn2').addEventListener('click', () => {
+                audio.init();
+                audio.resume();
                 const isOn = audio.toggleBGM();
                 document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
                 document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
@@ -2968,33 +4309,46 @@
             
             // SE button (スマホ - ゲーム画面)
             document.getElementById('mobileSeBtn').addEventListener('click', () => {
+                audio.init();
+                audio.resume();
                 const isOn = audio.toggleSE();
                 document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
                 document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
                 document.getElementById('seBtn').classList.toggle('on', isOn);
+                if (isOn) audio.playClick(); // 確認音を鳴らす
             });
             
             // SE button (スマホ - タイトル画面)
             document.getElementById('mobileSeBtn2').addEventListener('click', () => {
+                audio.init();
+                audio.resume();
                 const isOn = audio.toggleSE();
                 document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
                 document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
                 document.getElementById('seBtn').classList.toggle('on', isOn);
+                if (isOn) audio.playClick(); // 確認音を鳴らす
             });
 
             // Title screen buttons
-            document.getElementById('registerPlayBtn').addEventListener('click', () => {
+            document.getElementById('registerPlayBtn').addEventListener('click', async () => {
                 // ゲストモード状態だったらリセットして入力可能に
-                if (document.getElementById('usernameInput').disabled) {
+                // (usernameがGUESTで、isRegisteredがfalseの場合)
+                if (GameState.username === 'GUEST' && !GameState.isRegistered) {
                     document.getElementById('usernameInput').disabled = false;
                     document.getElementById('usernameInput').value = '';
                     document.getElementById('guestPlayBtn').disabled = false;
                     document.getElementById('guestPlayBtn').textContent = '登録しないでゲームを始める';
+                    document.getElementById('registerPlayBtn').textContent = '登録してゲームを始める';
                     GameState.username = null;
                     GameState.isRegistered = false;
                     audio.playClick();
                     showNotification('ユーザーネームを入力してください', 'info');
                     document.getElementById('usernameInput').focus();
+                    return;
+                }
+                
+                // 既に登録完了している場合は何もしない
+                if (GameState.isRegistered) {
                     return;
                 }
                 
@@ -3004,17 +4358,26 @@
                     return;
                 }
                 
-                // デバイス認証システムで登録
-                const result = DeviceAuth.registerUser(username);
+                // 登録中の表示
+                document.getElementById('registerPlayBtn').textContent = '登録中...';
+                document.getElementById('registerPlayBtn').disabled = true;
+                
+                // デバイス認証システムで登録（Firebase重複チェック）
+                const result = await DeviceAuth.registerUser(username);
                 if (!result.success) {
                     showNotification(result.error);
+                    document.getElementById('registerPlayBtn').textContent = '登録してゲームを始める';
+                    document.getElementById('registerPlayBtn').disabled = false;
                     return;
                 }
+                
+                // Firebaseにユーザー情報を保存
+                await FirebaseUsers.registerUser(username);
                 
                 GameState.username = username;
                 GameState.isRegistered = true;
                 GameState.deviceId = result.deviceId;
-                audio.playClick();
+                audio.playRegisterSuccess();
                 
                 // 登録完了の視覚的フィードバック
                 document.getElementById('usernameInput').disabled = true;
@@ -3022,7 +4385,12 @@
                 document.getElementById('registerPlayBtn').disabled = true;
                 document.getElementById('guestPlayBtn').disabled = true;
                 
-                showNotification('登録完了！下のボタンでプレイモードを選択してください。', 'success');
+                // ログインか新規登録かでメッセージを変える
+                if (result.isLogin) {
+                    showNotification('おかえりなさい！下のボタンでプレイモードを選択してください。', 'success');
+                } else {
+                    showNotification('登録完了！下のボタンでプレイモードを選択してください。', 'success');
+                }
             });
 
             document.getElementById('guestPlayBtn').addEventListener('click', () => {
@@ -3038,7 +4406,7 @@
                 document.getElementById('guestPlayBtn').disabled = true;
                 // 登録ボタンは押せるままにする（押すと入力モードに戻る）
                 document.getElementById('registerPlayBtn').disabled = false;
-                document.getElementById('registerPlayBtn').textContent = '登録してゲームを始める';
+                document.getElementById('registerPlayBtn').textContent = 'キャンセルして登録する';
                 
                 showNotification('ゲストモードで開始。下のボタンでプレイモードを選択してください。', 'info');
             });
@@ -3049,9 +4417,14 @@
             });
 
             document.getElementById('localPlayBtn').addEventListener('click', () => {
-                // マルチプレイは現在使用不可
-                showNotification('マルチプレイは現在準備中です。\n一人でプレイをお楽しみください。', 'warning');
-                audio.playWarning();
+                // ユーザー登録チェック
+                if (!GameState.username || !GameState.isRegistered) {
+                    showNotification('マルチプレイには登録が必要です', 'warning');
+                    audio.playWarning();
+                    return;
+                }
+                showModal('multiSetupModal');
+                audio.playClick();
             });
 
             document.getElementById('rulesBtn').addEventListener('click', () => {
@@ -3062,6 +4435,262 @@
             document.getElementById('rankingBtn').addEventListener('click', () => {
                 renderRankings();
                 showModal('rankingModal');
+                audio.playClick();
+            });
+
+            // Ranking tabs
+            document.querySelectorAll('.ranking-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const tabType = tab.dataset.tab;
+                    document.getElementById('soloRankingList').style.display = tabType === 'solo' ? 'block' : 'none';
+                    document.getElementById('multiRankingList').style.display = tabType === 'multi' ? 'block' : 'none';
+                    audio.playClick();
+                });
+            });
+
+            // Multiplayer setup
+            document.getElementById('closeMultiSetupBtn').addEventListener('click', () => {
+                hideModal('multiSetupModal');
+                audio.playClick();
+            });
+
+            document.getElementById('cancelMultiBtn').addEventListener('click', () => {
+                hideModal('multiSetupModal');
+                audio.playClick();
+            });
+
+            document.querySelectorAll('[data-multiwin]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-multiwin]').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    GameState.winLength = parseInt(btn.dataset.multiwin);
+                    audio.playClick();
+                });
+            });
+            
+            document.querySelectorAll('[data-multitimer]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-multitimer]').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    GameState.multiTimerSetting = btn.dataset.multitimer;
+                    audio.playClick();
+                });
+            });
+
+            document.getElementById('joinRoomBtn').addEventListener('click', async () => {
+                const roomId = document.getElementById('roomIdInput').value.trim();
+                if (!roomId) {
+                    showNotification('ルームIDを入力してください', 'warning');
+                    return;
+                }
+                
+                hideModal('multiSetupModal');
+                showNotification('ルームに接続中...', 'info');
+                
+                const result = await SyncLayer.connect(roomId);
+                if (result.success) {
+                    if (result.spectator) {
+                        // 観戦者として待機
+                        showNotification('ゲーム進行中です。ゲーム終了まで待機します...', 'info');
+                        showModal('spectatorWaitingModal');
+                        
+                        // ゲーム終了を監視
+                        const watchStatus = database.ref('rooms/' + roomId + '/status').on('value', async (snapshot) => {
+                            const status = snapshot.val();
+                            if (status === 'waiting' || status === 'ended') {
+                                // ゲーム終了 - プレイヤーとして参加
+                                database.ref('rooms/' + roomId + '/status').off('value', watchStatus);
+                                
+                                // 観戦者リストから削除
+                                const myName = GameState.username || 'GUEST';
+                                await database.ref('rooms/' + roomId + '/spectators/' + myName).remove();
+                                
+                                // プレイヤーとして参加
+                                const playersSnapshot = await database.ref('rooms/' + roomId + '/players').once('value');
+                                const players = playersSnapshot.val() || [];
+                                
+                                let slotIndex = players.findIndex(p => !p || !p.online);
+                                if (slotIndex === -1) slotIndex = players.length;
+                                
+                                SyncLayer.playerIndex = slotIndex;
+                                players[slotIndex] = {
+                                    name: myName,
+                                    index: slotIndex,
+                                    online: true
+                                };
+                                
+                                await database.ref('rooms/' + roomId + '/players').set(players);
+                                SyncLayer.roomRef.child('players/' + slotIndex + '/online').onDisconnect().set(false);
+                                SyncLayer.setupListeners();
+                                
+                                hideModal('spectatorWaitingModal');
+                                document.getElementById('waitingRoomId').textContent = roomId;
+                                showModal('multiWaitingModal');
+                                setupMultiplayerListeners();
+                                showNotification('ゲームに参加しました！', 'info');
+                                audio.playClick();
+                            }
+                        });
+                    } else if (result.pending) {
+                        // 参加リクエスト送信済み - 承認待ち
+                        showNotification('参加リクエストを送信しました。ホストの承認を待っています...', 'info');
+                        
+                        // 承認されたかどうかを監視
+                        const checkAccepted = database.ref('rooms/' + roomId + '/players').on('value', async (snapshot) => {
+                            const players = snapshot.val() || [];
+                            const myName = GameState.username || 'GUEST';
+                            const myPlayer = players.find(p => p && p.name === myName && p.online);
+                            
+                            if (myPlayer) {
+                                // 承認された
+                                database.ref('rooms/' + roomId + '/players').off('value', checkAccepted);
+                                SyncLayer.playerIndex = myPlayer.index;
+                                SyncLayer.roomRef.child('players/' + myPlayer.index + '/online').onDisconnect().set(false);
+                                SyncLayer.setupListeners();
+                                
+                                document.getElementById('waitingRoomId').textContent = roomId;
+                                showModal('multiWaitingModal');
+                                setupMultiplayerListeners();
+                                showNotification('参加が承認されました！', 'info');
+                                audio.playClick();
+                            }
+                        });
+                        
+                        // 拒否された場合（pendingPlayerがnullになった）を監視
+                        const checkRejected = database.ref('rooms/' + roomId + '/pendingPlayer').on('value', (snapshot) => {
+                            const pending = snapshot.val();
+                            if (pending === null) {
+                                database.ref('rooms/' + roomId + '/pendingPlayer').off('value', checkRejected);
+                                // まだ承認されていない場合は拒否された
+                                if (SyncLayer.playerIndex === -1) {
+                                    database.ref('rooms/' + roomId + '/players').off('value', checkAccepted);
+                                    showNotification('参加リクエストが拒否されました', 'warning');
+                                    audio.playWarning();
+                                }
+                            }
+                        });
+                    } else {
+                        // 通常の参加 - 再戦待機中かどうかをチェック
+                        const roomSnapshot = await database.ref('rooms/' + roomId).once('value');
+                        const roomData = roomSnapshot.val();
+                        
+                        if (roomData && roomData.rematchReady) {
+                            // 再戦待機中のルームに参加 → 再戦待機モーダルを表示
+                            document.getElementById('rematchRoomId').textContent = roomId;
+                            showModal('rematchWaitingModal');
+                            setupMultiplayerListeners();
+                            updateRematchPlayerStatus();
+                            audio.playClick();
+                        } else {
+                            // 通常の待機画面
+                            document.getElementById('waitingRoomId').textContent = roomId;
+                            showModal('multiWaitingModal');
+                            setupMultiplayerListeners();
+                            audio.playClick();
+                        }
+                    }
+                } else {
+                    showNotification(result.error || '接続に失敗しました', 'warning');
+                    audio.playWarning();
+                }
+            });
+
+            document.getElementById('leaveRoomBtn').addEventListener('click', () => {
+                SyncLayer.disconnect();
+                hideModal('multiWaitingModal');
+                showNotification('ルームから退出しました', 'info');
+                audio.playClick();
+            });
+
+            document.getElementById('startMultiGameBtn').addEventListener('click', async () => {
+                // ホストのみ開始可能
+                const isHost = await SyncLayer.isHost();
+                if (!isHost) {
+                    showNotification('ホストのみがゲームを開始できます', 'info');
+                    return;
+                }
+                hideModal('multiWaitingModal');
+                await SyncLayer.startGame({ 
+                    winLength: GameState.winLength,
+                    timer: GameState.multiTimerSetting
+                });
+                // ゲーム開始はonStatusChangeで処理される
+            });
+
+            // Player left modal
+            document.getElementById('continueGameBtn').addEventListener('click', () => {
+                hideModal('playerLeftModal');
+                audio.playClick();
+            });
+
+            document.getElementById('endGameAfterLeaveBtn').addEventListener('click', () => {
+                hideModal('playerLeftModal');
+                SyncLayer.disconnect();
+                returnToTitle();
+                audio.playClick();
+            });
+            
+            // Alone in room modal
+            document.getElementById('aloneOkBtn').addEventListener('click', () => {
+                hideModal('aloneInRoomModal');
+                SyncLayer.disconnect();
+                returnToTitle();
+                audio.playClick();
+            });
+            
+            // New player waiting modal (参加リクエスト)
+            document.getElementById('acceptPlayerBtn').addEventListener('click', async () => {
+                hideModal('newPlayerWaitingModal');
+                await SyncLayer.acceptPendingPlayer();
+                audio.playClick();
+            });
+            
+            document.getElementById('rejectPlayerBtn').addEventListener('click', async () => {
+                hideModal('newPlayerWaitingModal');
+                await SyncLayer.rejectPendingPlayer();
+                audio.playClick();
+            });
+            
+            // ゲーム中退席モーダル
+            document.getElementById('continueGameDuringBtn').addEventListener('click', () => {
+                hideModal('playerLeftDuringGameModal');
+                // プレイヤーリストを更新して続行
+                refreshPlayersAndContinue();
+                audio.playClick();
+            });
+            
+            document.getElementById('endGameDuringBtn').addEventListener('click', () => {
+                hideModal('playerLeftDuringGameModal');
+                GameState.gameActive = false;
+                stopTimer();
+                SyncLayer.disconnect();
+                returnToTitle();
+                audio.playClick();
+            });
+            
+            // 観戦者待機キャンセル
+            document.getElementById('cancelSpectatorBtn').addEventListener('click', () => {
+                hideModal('spectatorWaitingModal');
+                SyncLayer.disconnect();
+                showNotification('待機をキャンセルしました', 'info');
+                audio.playClick();
+            });
+            
+            // 再戦モーダル - ゲーム開始ボタン（ホストのみ）
+            document.getElementById('rematchStartBtn').addEventListener('click', async () => {
+                await SyncLayer.startRematch();
+                hideModal('rematchWaitingModal');
+                audio.playClick();
+            });
+            
+            document.getElementById('rematchCancelBtn').addEventListener('click', async () => {
+                hideModal('rematchWaitingModal');
+                await SyncLayer.cancelRematchReady();
+                SyncLayer.disconnect();
+                returnToTitle();
                 audio.playClick();
             });
 
@@ -3088,6 +4717,7 @@
 
             document.getElementById('startSoloBtn').addEventListener('click', () => {
                 GameState.gameMode = 'solo';
+                GameState.boardSize = GameState.winLength + 3; // ボードサイズを設定
                 GameState.players = [
                     { name: GameState.username || 'PLAYER 1' },
                     { name: 'CPU' }
@@ -3103,6 +4733,7 @@
             // Local setup
             document.getElementById('startLocalBtn').addEventListener('click', () => {
                 GameState.gameMode = 'local';
+                GameState.boardSize = GameState.winLength + 3; // ボードサイズを設定
                 GameState.players = [];
                 for (let i = 0; i < GameState.playerCount; i++) {
                     GameState.players.push({ name: `PLAYER ${i + 1}` });
@@ -3151,6 +4782,349 @@
             document.querySelectorAll('.btn, .select-option, .cpu-level').forEach(btn => {
                 btn.addEventListener('mouseenter', () => audio.playHover());
             });
+        }
+
+        // ==================== MULTIPLAYER LISTENERS ====================
+        function setupMultiplayerListeners() {
+            // プレイヤー更新
+            SyncLayer.onPlayersUpdate(async (players) => {
+                updateWaitingPlayersList(players);
+                
+                // ルーム情報を取得してルール表示を更新
+                const roomSnapshot = await database.ref('rooms/' + SyncLayer.roomId).once('value');
+                const roomData = roomSnapshot.val();
+                if (roomData) {
+                    document.getElementById('roomWinLength').textContent = roomData.winLength || 4;
+                    const timerSetting = roomData.timerSetting || 'none';
+                    document.getElementById('roomTimerSetting').textContent = 
+                        timerSetting === 'none' ? 'なし' : timerSetting + '秒';
+                }
+                
+                // 2人以上でスタートボタン表示（ホストのみ開始可能）
+                const onlinePlayers = players.filter(p => p && p.online);
+                const startBtn = document.getElementById('startMultiGameBtn');
+                
+                // ホストかどうか判定
+                const isHost = await SyncLayer.isHost();
+                
+                // 2人以上揃ったらホストにボタン表示
+                if (onlinePlayers.length >= 2) {
+                    if (isHost) {
+                        startBtn.style.display = 'block';
+                        startBtn.textContent = 'ゲーム開始';
+                        startBtn.disabled = false;
+                    } else {
+                        startBtn.style.display = 'block';
+                        startBtn.textContent = 'ホストの開始を待機中...';
+                        startBtn.disabled = true;
+                    }
+                } else {
+                    startBtn.style.display = 'none';
+                }
+            });
+            
+            // ゲーム状態変化
+            SyncLayer.onStatusChange(async (status) => {
+                if (status === 'roulette') {
+                    // ルーレット表示
+                    hideModal('multiWaitingModal');
+                    hideModal('spectatorWaitingModal');
+                    await showRoulette();
+                } else if (status === 'playing') {
+                    // ルーレット後にゲーム開始
+                    hideModal('rouletteModal');
+                    hideModal('spectatorWaitingModal');
+                    startMultiplayerGame();
+                } else if (status === 'ended') {
+                    // ゲーム終了処理
+                } else if (status === 'waiting') {
+                    // 待機状態に戻った（再戦準備）
+                    hideModal('spectatorWaitingModal');
+                }
+            });
+            
+            // 手の受信
+            SyncLayer.onMove((move) => {
+                if (GameState.gameActive && GameState.gameMode === 'multi') {
+                    // ボード更新はonBoardUpdateで処理
+                }
+            });
+            
+            // ボード更新
+            SyncLayer.onBoardUpdate((board) => {
+                if (GameState.gameActive && GameState.gameMode === 'multi') {
+                    // Firebaseから受け取ったデータを2次元配列に変換
+                    const convertedBoard = convertFirebaseBoard(board);
+                    
+                    if (convertedBoard && convertedBoard.length === GameState.boardSize) {
+                        GameState.board = convertedBoard;
+                        renderBoard();
+                        // 勝敗チェックは配置した側で行うため、ここでは行わない
+                    }
+                }
+            });
+            
+            // ターン変化
+            SyncLayer.onTurnChange((currentPlayer) => {
+                if (GameState.gameActive && GameState.gameMode === 'multi') {
+                    GameState.currentPlayer = currentPlayer;
+                    GameState.isPlacing = false; // 配置中フラグをリセット
+                    updateTurnDisplay();
+                    resetTimer();
+                    renderBoard(); // ボードを再描画（有効な手を更新）
+                    audio.playTurnChange();
+                    
+                    console.log('ターン変更受信:', currentPlayer, '自分:', SyncLayer.playerIndex);
+                }
+            });
+            
+            // ゲーム終了（勝敗）
+            SyncLayer.onGameEnd((winner, winCells) => {
+                if (GameState.gameActive && GameState.gameMode === 'multi') {
+                    if (winner === -1) {
+                        // 引き分け
+                        endGame(null, true);
+                    } else {
+                        // 勝者あり - 勝利セル情報を渡す
+                        const cells = winCells || [];
+                        endGame({ player: winner, cells: cells });
+                    }
+                }
+            });
+            
+            // プレイヤー退席
+            SyncLayer.onPlayerLeave(async (player, index) => {
+                // オンラインプレイヤー数を確認
+                const onlineCount = await SyncLayer.getOnlinePlayerCount();
+                
+                // ホスト継承チェック（どの状態でも実行）
+                const snapshot = await database.ref('rooms/' + SyncLayer.roomId + '/players').once('value');
+                const players = snapshot.val() || [];
+                const onlinePlayers = players
+                    .map((p, i) => ({ ...p, originalIndex: i }))
+                    .filter(p => p && p.online);
+                
+                if (onlinePlayers.length > 0) {
+                    const newHost = onlinePlayers.reduce((min, p) => 
+                        p.originalIndex < min.originalIndex ? p : min
+                    );
+                    
+                    if (newHost.originalIndex === SyncLayer.playerIndex) {
+                        showNotification('あなたが新しいホストになりました', 'info');
+                    }
+                }
+                
+                if (GameState.gameActive) {
+                    // ゲーム中の退席
+                    if (onlineCount < 2) {
+                        // 1人になった場合 - ゲーム終了してタイトルへ
+                        GameState.gameActive = false;
+                        stopTimer();
+                        document.getElementById('gameOverOverlay').classList.remove('active');
+                        showModal('aloneInRoomModal');
+                    } else {
+                        // 2人以上残っている場合（3人→2人）- 続行するか確認
+                        document.getElementById('playerLeftDuringGameMessage').textContent = 
+                            `${player.name}さんが退席しました`;
+                        showModal('playerLeftDuringGameModal');
+                    }
+                } else {
+                    // 待機中の退席
+                    if (onlineCount < 2) {
+                        // 1人になった場合
+                        showModal('aloneInRoomModal');
+                    } else {
+                        // 2人以上残っている - 通知のみ
+                        document.getElementById('playerLeftMessage').textContent = 
+                            `${player.name}さんが退席しました`;
+                        showModal('playerLeftModal');
+                    }
+                }
+                audio.playWarning();
+            });
+            
+            // 参加リクエスト（ホストのみ処理）
+            SyncLayer.onPendingPlayer(async (pending) => {
+                // ホストのみ参加リクエストを処理
+                const isHost = await SyncLayer.isHost();
+                if (isHost && pending && pending.name) {
+                    // ゲーム終了後の待機中のみ表示
+                    if (!GameState.gameActive) {
+                        document.getElementById('newPlayerName').textContent = pending.name;
+                        showModal('newPlayerWaitingModal');
+                        audio.playClick();
+                    }
+                }
+            });
+            
+            // 再戦準備状態更新
+            SyncLayer.onRematchUpdate(async (rematchReady) => {
+                // 再戦モーダルが表示されている場合、状態を更新
+                if (document.getElementById('rematchWaitingModal').classList.contains('active')) {
+                    updateRematchPlayerStatus();
+                    
+                    // 1人だけになったかチェック
+                    const snapshot = await database.ref('rooms/' + SyncLayer.roomId).once('value');
+                    const roomData = snapshot.val();
+                    if (!roomData) return;
+                    
+                    const players = roomData.players || [];
+                    const ready = rematchReady || {};
+                    
+                    // 文字列キーと数値キーの両方をチェック
+                    let readyCount = 0;
+                    players.forEach((p, i) => {
+                        if (p && p.online && (ready[i] === true || ready[String(i)] === true)) {
+                            readyCount++;
+                        }
+                    });
+                    
+                    if (readyCount < 1) {
+                        // 自分以外全員離脱した場合 - 強制退出
+                        hideModal('rematchWaitingModal');
+                        showModal('aloneInRoomModal');
+                    }
+                }
+            });
+        }
+
+        function updateWaitingPlayersList(players) {
+            const container = document.getElementById('waitingPlayersList');
+            container.innerHTML = '';
+            
+            players.forEach((player, index) => {
+                // オフラインプレイヤーは表示しない
+                if (!player || !player.online) return;
+                
+                const div = document.createElement('div');
+                div.className = 'waiting-player';
+                div.innerHTML = `
+                    <span class="player-index">P${index + 1}</span>
+                    <span class="player-name">${player.name}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // ゲーム中にプレイヤーが離脱した後、続行する
+        async function refreshPlayersAndContinue() {
+            // Firebaseからプレイヤー情報を再取得
+            const snapshot = await database.ref('rooms/' + SyncLayer.roomId + '/players').once('value');
+            const players = snapshot.val() || [];
+            
+            // オンラインプレイヤーのみ取得
+            GameState.players = [];
+            players.forEach((p, originalIndex) => {
+                if (p && p.online) {
+                    GameState.players.push({
+                        name: p.name,
+                        originalIndex: originalIndex
+                    });
+                }
+            });
+            
+            // ターン表示を更新
+            updateTurnDisplay();
+            updatePlayerTags();
+            
+            showNotification('ゲームを続行します', 'info');
+        }
+
+        // ルーレット表示
+        async function showRoulette() {
+            showModal('rouletteModal');
+            
+            // Firebaseからプレイヤー情報を取得
+            const snapshot = await database.ref('rooms/' + SyncLayer.roomId + '/players').once('value');
+            const players = snapshot.val() || [];
+            const onlinePlayers = players.filter(p => p && p.online);
+            
+            // currentPlayerを取得
+            const roomSnapshot = await database.ref('rooms/' + SyncLayer.roomId).once('value');
+            const roomData = roomSnapshot.val();
+            const selectedIndex = roomData.currentPlayer;
+            const selectedPlayer = players[selectedIndex];
+            
+            const spinner = document.getElementById('rouletteSpinner');
+            const result = document.getElementById('rouletteResult');
+            
+            // ルーレットアニメーション
+            let count = 0;
+            const maxCount = 20;
+            const interval = setInterval(() => {
+                const randomPlayer = onlinePlayers[Math.floor(Math.random() * onlinePlayers.length)];
+                spinner.textContent = randomPlayer ? randomPlayer.name : '???';
+                spinner.style.color = ['var(--neon-cyan)', 'var(--neon-pink)', 'var(--neon-yellow)'][count % 3];
+                count++;
+                
+                if (count >= maxCount) {
+                    clearInterval(interval);
+                    // 最終結果を表示
+                    spinner.textContent = selectedPlayer ? selectedPlayer.name : '???';
+                    spinner.style.color = 'var(--neon-green)';
+                    result.style.display = 'block';
+                    result.textContent = `${selectedPlayer ? selectedPlayer.name : '???'}さんが先攻です！`;
+                    audio.playWin();
+                }
+            }, 100);
+        }
+
+        async function startMultiplayerGame() {
+            GameState.gameMode = 'multi';
+            
+            // Firebaseからプレイヤー情報を取得
+            const snapshot = await database.ref('rooms/' + SyncLayer.roomId + '/players').once('value');
+            const players = snapshot.val() || [];
+            
+            // オンラインプレイヤーのみ取得（元のインデックスを保持）
+            GameState.players = [];
+            players.forEach((p, originalIndex) => {
+                if (p && p.online) {
+                    GameState.players.push({
+                        name: p.name,
+                        originalIndex: originalIndex
+                    });
+                }
+            });
+            
+            // ゲーム設定を取得
+            const settingsSnapshot = await database.ref('rooms/' + SyncLayer.roomId).once('value');
+            const roomData = settingsSnapshot.val();
+            if (roomData) {
+                GameState.winLength = roomData.winLength || 4;
+                GameState.boardSize = roomData.boardSize || (GameState.winLength + 3);
+                GameState.currentPlayer = roomData.currentPlayer || 0;
+                
+                // タイマー設定を適用
+                const timerSetting = roomData.timerSetting || 'none';
+                if (timerSetting === 'none') {
+                    GameState.timerSetting = 0;
+                } else {
+                    GameState.timerSetting = parseInt(timerSetting);
+                }
+                
+                // Firebaseのボードを変換して使用
+                const convertedBoard = convertFirebaseBoard(roomData.board);
+                if (convertedBoard && convertedBoard.length === GameState.boardSize) {
+                    GameState.board = convertedBoard;
+                } else {
+                    // ボードを新規初期化
+                    GameState.board = [];
+                    for (let y = 0; y < GameState.boardSize; y++) {
+                        GameState.board.push(new Array(GameState.boardSize).fill(null));
+                    }
+                }
+            } else {
+                GameState.boardSize = GameState.winLength + 3;
+                GameState.timerSetting = 0;
+                // ボードを新規初期化
+                GameState.board = [];
+                for (let y = 0; y < GameState.boardSize; y++) {
+                    GameState.board.push(new Array(GameState.boardSize).fill(null));
+                }
+            }
+            
+            startGame();
         }
 
         // ==================== INITIALIZATION ====================
@@ -3219,12 +5193,36 @@
         function enableAudio() {
             audio.init();
             audio.resume();
+            
+            // iOS Safari向け追加処理: AudioContextを強制的にresume
+            if (audio.audioContext && audio.audioContext.state !== 'running') {
+                audio.audioContext.resume().then(() => {
+                    console.log('AudioContext resumed');
+                }).catch(e => console.log('Resume failed:', e));
+            }
+            
             document.removeEventListener('click', enableAudio);
             document.removeEventListener('touchstart', enableAudio);
+            document.removeEventListener('touchend', enableAudio);
         }
         
         document.addEventListener('click', enableAudio);
         document.addEventListener('touchstart', enableAudio);
+        document.addEventListener('touchend', enableAudio); // touchendも追加
+
+        // ページ離脱時にログアウト処理
+        window.addEventListener('beforeunload', () => {
+            DeviceAuth.logout();
+        });
+        
+        // visibilitychange でも対応（モバイル対応）
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                // ページが非表示になった時（タブ切り替え、アプリ切り替え等）
+                // 注：完全に離脱したわけではないので、ここではログアウトしない
+                // onDisconnect が自動で処理する
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
