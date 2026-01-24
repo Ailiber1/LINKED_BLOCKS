@@ -8,6 +8,7 @@
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
     <script>
         // Firebase Configuration
@@ -5296,8 +5297,18 @@
         // ==================== INITIALIZATION ====================
         function init() {
             createMatrixBackground();
-            loadRankings();
             initEventListeners();
+            
+            // Firebase匿名認証 - 認証完了後にデータベース処理を実行
+            firebase.auth().signInAnonymously()
+                .then(() => {
+                    // 認証成功後にランキングを読み込む
+                    loadRankings();
+                })
+                .catch(error => {
+                    console.error('Firebase Auth Error:', error);
+                    showNotification('認証エラーが発生しました', 'error');
+                });
             
             // デバイスIDを初期化
             GameState.deviceId = DeviceAuth.getDeviceId();
