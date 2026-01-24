@@ -26,6 +26,15 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        // Firebase認証状態を追跡
+        let isAuthReady = false;
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                isAuthReady = true;
+                console.log('Firebase Auth ready');
+            }
+        });
     </script>
     
     <style>
@@ -2248,6 +2257,18 @@
             async registerUser(username) {
                 const deviceId = this.getDeviceId();
                 const sanitizedName = this.sanitizeUsername(username);
+                
+                // Firebase認証完了を待つ
+                if (!isAuthReady) {
+                    let retries = 0;
+                    while (!isAuthReady && retries < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        retries++;
+                    }
+                    if (!isAuthReady) {
+                        return { success: false, error: '認証の準備ができていません。再試行してください。' };
+                    }
+                }
                 
                 try {
                     // Firebaseでユーザー確認
