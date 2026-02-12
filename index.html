@@ -8,7 +8,6 @@
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
     <script>
         // Firebase Configuration
@@ -1216,187 +1215,64 @@
             }
         }
 
-        /* Audio Control - 右上に配置 */
-        .audio-controls {
-            position: fixed;
-            top: 20px;
-            left: 20px;
+        /* パネル下部のコントロール（FALL-DODGE風） */
+        .panel-footer-controls {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 100;
-        }
-
-        .audio-buttons {
-            display: flex;
-            gap: 8px;
+            justify-content: center;
             align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 255, 65, 0.3);
+            flex-wrap: wrap;
         }
-
-        .audio-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-panel);
+        
+        .panel-divider {
+            color: var(--neon-green-dim);
+            margin: 0 5px;
+        }
+        
+        .panel-toggle-btn {
+            padding: 8px 16px;
+            background: transparent;
             border: 2px solid var(--neon-green-dim);
             color: var(--neon-green-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
             transition: all 0.2s ease;
             position: relative;
         }
-
-        .audio-btn:hover {
+        
+        .panel-toggle-btn:hover {
             border-color: var(--neon-green);
             color: var(--neon-green);
+        }
+        
+        .panel-toggle-btn.on {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            background: rgba(0, 255, 65, 0.1);
             box-shadow: 0 0 10px var(--neon-green-glow);
         }
         
-        .audio-btn.on {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-            box-shadow: 0 0 10px var(--neon-green-glow);
-        }
-
-        .audio-btn:not(.on)::after {
+        .panel-toggle-btn:not(.on):not(.lang-btn)::after {
             content: '';
             position: absolute;
             width: 2px;
-            height: 24px;
+            height: 60%;
             background: var(--neon-red);
-            transform: rotate(45deg);
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
             box-shadow: 0 0 5px var(--neon-red);
         }
-
-        .audio-btn .label {
-            display: none;
-        }
-
-        /* Volume Slider */
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            background: rgba(0, 10, 0, 0.95);
-            border: 1px solid var(--neon-green-dim);
-        }
-
-        .volume-control.hidden {
-            display: none;
-        }
-
-        .volume-label {
-            font-size: 9px;
-            color: var(--neon-green);
-        }
-
-        .volume-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 60px;
-            height: 6px;
-            background: rgba(0, 255, 65, 0.2);
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--neon-green-glow);
-            transition: all 0.2s ease;
-        }
-
-        .volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px var(--neon-green-glow);
-        }
-
-        .volume-slider::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px var(--neon-green-glow);
-        }
-
-        .volume-value {
-            font-size: 9px;
-            color: var(--neon-green);
-            min-width: 28px;
-            text-align: right;
-        }
-
-        /* スマホ用 */
-        @media (max-width: 600px) {
-            .audio-controls {
-                top: 10px;
-                left: 10px;
-            }
-
-            .audio-buttons {
-                gap: 6px;
-            }
-
-            .audio-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 12px;
-            }
-
-            .audio-btn:not(.on)::after {
-                height: 18px;
-            }
-
-            .volume-control {
-                padding: 3px 6px;
-            }
-
-            .volume-slider {
-                width: 50px;
-                height: 4px;
-            }
-
-            .volume-slider::-webkit-slider-thumb {
-                width: 12px;
-                height: 12px;
-            }
-
-            .volume-value {
-                font-size: 8px;
-                min-width: 24px;
-            }
-        }
-
-        /* Help button - 右上 */
-        .help-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            background: var(--bg-panel);
-            border: 2px solid var(--neon-green);
-            color: var(--neon-green);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 50;
-        }
-
-        .help-btn:hover {
-            box-shadow: 0 0 15px var(--neon-green-glow);
+        
+        .panel-toggle-btn.lang-btn.active {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
     </style>
 </head>
@@ -1406,25 +1282,6 @@
     
     <!-- Scanlines -->
     <div class="scanlines"></div>
-
-    <!-- Audio Controls -->
-    <div class="audio-controls">
-        <div class="volume-control" id="volumeControl">
-            <input type="range" class="volume-slider" id="bgmVolume" min="0" max="100" value="30">
-            <span class="volume-value" id="volumeValue">30%</span>
-        </div>
-        <div class="audio-buttons">
-            <button class="audio-btn on" id="bgmBtn" title="BGM ON/OFF">
-                ♪
-            </button>
-            <button class="audio-btn on" id="seBtn" title="SE ON/OFF">
-                🔊
-            </button>
-        </div>
-    </div>
-
-    <!-- Help Button -->
-    <button class="help-btn" id="helpBtn">?</button>
 
     <!-- Main Container -->
     <div class="container">
@@ -1437,17 +1294,6 @@
         <div class="screen" id="titleScreen">
             <h1 class="title">LINKED BLOCKS_</h1>
             
-            <!-- スマホ用コントロールバー（タイトル画面） -->
-            <div class="mobile-controls mobile-controls-title" id="mobileControlsTitle">
-                <div class="left-controls">
-                    <button class="mobile-btn on" id="mobileBgmBtn2" title="BGM">♪</button>
-                    <button class="mobile-btn on" id="mobileSeBtn2" title="SE">🔊</button>
-                </div>
-                <div class="right-controls">
-                    <button class="mobile-help" id="mobileHelpBtn2">?</button>
-                </div>
-            </div>
-            
             <div class="panel">
                 <div class="corner-br"></div>
                 
@@ -1457,17 +1303,24 @@
                 </div>
 
                 <button class="btn" id="registerPlayBtn">登録してゲームを始める</button>
-                <button class="btn btn-secondary" id="guestPlayBtn">登録しないでゲームを始める</button>
+                <button class="btn btn-secondary" id="guestPlayBtn">▶ 登録しないでゲームを始める</button>
 
                 <div class="divider"></div>
 
-                <button class="btn" id="soloPlayBtn">一人でプレイ（CPU対戦）</button>
                 <button class="btn" id="localPlayBtn">マルチプレイ（2〜3人）</button>
 
                 <div class="divider"></div>
 
                 <button class="btn btn-secondary" id="rulesBtn">ルール説明を見る</button>
                 <button class="btn btn-secondary" id="rankingBtn">ランキングを見る</button>
+                
+                <!-- パネル下部のコントロール -->
+                <div class="panel-footer-controls">
+                    <button class="panel-toggle-btn lang-btn active" id="langJaBtn">日本語</button>
+                    <button class="panel-toggle-btn lang-btn" id="langEnBtn">English</button>
+                    <span class="panel-divider">|</span>
+                    <button class="panel-toggle-btn on" id="panelBgmBtn">🎵 BGM</button>
+                </div>
             </div>
         </div>
 
@@ -1563,7 +1416,6 @@
                 <div class="mobile-controls" id="mobileControls">
                     <div class="left-controls">
                         <button class="mobile-btn on" id="mobileBgmBtn" title="BGM">♪</button>
-                        <button class="mobile-btn on" id="mobileSeBtn" title="SE">🔊</button>
                     </div>
                     <div class="right-controls">
                         <button class="mobile-quit" id="mobileQuitBtn">✕ 中断</button>
@@ -2173,18 +2025,150 @@
 
             loadPreferences() {
                 const bgmPref = localStorage.getItem('linkedblocks_bgm');
-                const sePref = localStorage.getItem('linkedblocks_se');
                 const volumePref = localStorage.getItem('linkedblocks_bgm_volume');
                 
                 if (bgmPref !== null) this.bgmEnabled = bgmPref === 'true';
-                if (sePref !== null) this.seEnabled = sePref === 'true';
                 if (volumePref !== null) this.bgmVolume = parseFloat(volumePref);
+                
+                // SEは常にON
+                this.seEnabled = true;
                 
                 return { bgm: this.bgmEnabled, se: this.seEnabled, volume: this.bgmVolume };
             }
         }
 
         const audio = new AudioManager();
+
+        // ==================== 多言語システム ====================
+        let currentLang = localStorage.getItem('linkedblocks_lang') || 'ja';
+        
+        const translations = {
+            ja: {
+                userName: 'USER NAME',
+                userNamePlaceholder: '名前を入力...',
+                registerPlay: '登録してゲームを始める',
+                guestPlay: '▶ 登録しないでゲームを始める',
+                cancelRegister: 'キャンセルして登録する',
+                guestMode: '✓ ゲストモード',
+                multiPlay: 'マルチプレイ（2〜3人）',
+                viewRules: 'ルール説明を見る',
+                viewRanking: 'ランキングを見る',
+                cpuBattle: 'CPU対戦',
+                cpuLevel: 'CPUレベル',
+                weak: '弱',
+                normal: '普通',
+                strong: '強',
+                winLength: '揃えるブロック数',
+                timer: 'タイマー（秒）',
+                start: 'START',
+                back: '戻る',
+                quit: '✕ 中断',
+                rematch: '再戦',
+                toTitle: 'タイトルへ',
+                winner: '勝者',
+                draw: '引き分け',
+                gameSet: 'GAME SET!',
+                introText: 'ブロックを先に揃えて勝利せよ！'
+            },
+            en: {
+                userName: 'USER NAME',
+                userNamePlaceholder: 'Enter name...',
+                registerPlay: 'Register & Start',
+                guestPlay: '▶ Play as Guest',
+                cancelRegister: 'Cancel & Register',
+                guestMode: '✓ Guest Mode',
+                multiPlay: 'Multiplayer (2-3)',
+                viewRules: 'View Rules',
+                viewRanking: 'View Ranking',
+                cpuBattle: 'CPU Battle',
+                cpuLevel: 'CPU Level',
+                weak: 'Easy',
+                normal: 'Normal',
+                strong: 'Hard',
+                winLength: 'Blocks to Win',
+                timer: 'Timer (sec)',
+                start: 'START',
+                back: 'Back',
+                quit: '✕ Quit',
+                rematch: 'Rematch',
+                toTitle: 'To Title',
+                winner: 'WINNER',
+                draw: 'DRAW',
+                gameSet: 'GAME SET!',
+                introText: 'Line up blocks first to win!'
+            }
+        };
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('linkedblocks_lang', lang);
+            
+            // ボタンの状態を更新
+            document.getElementById('langJaBtn').classList.toggle('active', lang === 'ja');
+            document.getElementById('langEnBtn').classList.toggle('active', lang === 'en');
+            
+            // テキストを更新
+            updateTexts();
+        }
+        
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+        
+        function updateTexts() {
+            const lang = currentLang;
+            const tr = translations[lang];
+            
+            // タイトル画面
+            const userLabel = document.querySelector('#titleScreen .input-label');
+            if (userLabel) userLabel.textContent = tr.userName;
+            
+            const userInput = document.getElementById('usernameInput');
+            if (userInput) userInput.placeholder = tr.userNamePlaceholder;
+            
+            const registerBtn = document.getElementById('registerPlayBtn');
+            if (registerBtn) {
+                if (GameState.username === 'GUEST' && !GameState.isRegistered) {
+                    registerBtn.textContent = tr.cancelRegister;
+                } else {
+                    registerBtn.textContent = tr.registerPlay;
+                }
+            }
+            
+            const guestBtn = document.getElementById('guestPlayBtn');
+            if (guestBtn) {
+                if (GameState.username === 'GUEST' && !GameState.isRegistered) {
+                    guestBtn.textContent = tr.guestMode;
+                } else {
+                    guestBtn.textContent = tr.guestPlay;
+                }
+            }
+            
+            document.getElementById('localPlayBtn').textContent = tr.multiPlay;
+            document.getElementById('rulesBtn').textContent = tr.viewRules;
+            document.getElementById('rankingBtn').textContent = tr.viewRanking;
+            
+            // CPU対戦画面
+            const soloTitle = document.querySelector('#soloSetupScreen .title');
+            if (soloTitle) soloTitle.textContent = tr.cpuBattle;
+            
+            const cpuLabel = document.querySelector('#soloSetupScreen .input-label');
+            if (cpuLabel) cpuLabel.textContent = tr.cpuLevel;
+            
+            document.querySelectorAll('.cpu-level').forEach(btn => {
+                const level = btn.dataset.level;
+                if (level === 'weak') btn.textContent = tr.weak;
+                if (level === 'normal') btn.textContent = tr.normal;
+                if (level === 'strong') btn.textContent = tr.strong;
+            });
+            
+            document.getElementById('startSoloBtn').textContent = tr.start;
+            document.getElementById('backFromSoloBtn').textContent = tr.back;
+            
+            // イントロテキスト
+            const introText = document.getElementById('introText');
+            if (introText) introText.textContent = tr.introText;
+        }
 
         // ==================== GAME STATE ====================
         const GameState = {
@@ -4425,21 +4409,9 @@
                 hideQuitConfirm();
                 audio.playClick();
             });
-
-            // Help button (PC)
-            document.getElementById('helpBtn').addEventListener('click', () => {
-                showModal('rulesModal');
-                audio.playClick();
-            });
             
             // Help button (スマホ - ゲーム画面)
             document.getElementById('mobileHelpBtn').addEventListener('click', () => {
-                showModal('rulesModal');
-                audio.playClick();
-            });
-            
-            // Help button (スマホ - タイトル画面)
-            document.getElementById('mobileHelpBtn2').addEventListener('click', () => {
                 showModal('rulesModal');
                 audio.playClick();
             });
@@ -4450,42 +4422,27 @@
                 audio.resume();
                 const isOn = audio.toggleBGM();
                 document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
-                document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
-                document.getElementById('bgmBtn').classList.toggle('on', isOn);
-                document.getElementById('volumeControl').classList.toggle('hidden', !isOn);
+                document.getElementById('panelBgmBtn').classList.toggle('on', isOn);
             });
             
-            // BGM button (スマホ - タイトル画面)
-            document.getElementById('mobileBgmBtn2').addEventListener('click', () => {
+            // BGM button (パネル内)
+            document.getElementById('panelBgmBtn').addEventListener('click', () => {
                 audio.init();
                 audio.resume();
                 const isOn = audio.toggleBGM();
                 document.getElementById('mobileBgmBtn').classList.toggle('on', isOn);
-                document.getElementById('mobileBgmBtn2').classList.toggle('on', isOn);
-                document.getElementById('bgmBtn').classList.toggle('on', isOn);
-                document.getElementById('volumeControl').classList.toggle('hidden', !isOn);
+                document.getElementById('panelBgmBtn').classList.toggle('on', isOn);
             });
             
-            // SE button (スマホ - ゲーム画面)
-            document.getElementById('mobileSeBtn').addEventListener('click', () => {
-                audio.init();
-                audio.resume();
-                const isOn = audio.toggleSE();
-                document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
-                document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
-                document.getElementById('seBtn').classList.toggle('on', isOn);
-                if (isOn) audio.playClick(); // 確認音を鳴らす
+            // 言語切り替え
+            document.getElementById('langJaBtn').addEventListener('click', () => {
+                setLanguage('ja');
+                audio.playClick();
             });
             
-            // SE button (スマホ - タイトル画面)
-            document.getElementById('mobileSeBtn2').addEventListener('click', () => {
-                audio.init();
-                audio.resume();
-                const isOn = audio.toggleSE();
-                document.getElementById('mobileSeBtn').classList.toggle('on', isOn);
-                document.getElementById('mobileSeBtn2').classList.toggle('on', isOn);
-                document.getElementById('seBtn').classList.toggle('on', isOn);
-                if (isOn) audio.playClick(); // 確認音を鳴らす
+            document.getElementById('langEnBtn').addEventListener('click', () => {
+                setLanguage('en');
+                audio.playClick();
             });
 
             // Title screen buttons
@@ -4496,7 +4453,7 @@
                     document.getElementById('usernameInput').disabled = false;
                     document.getElementById('usernameInput').value = '';
                     document.getElementById('guestPlayBtn').disabled = false;
-                    document.getElementById('guestPlayBtn').textContent = '登録しないでゲームを始める';
+                    document.getElementById('guestPlayBtn').textContent = '▶ 登録しないでゲームを始める';
                     document.getElementById('registerPlayBtn').textContent = '登録してゲームを始める';
                     GameState.username = null;
                     GameState.isRegistered = false;
@@ -4568,11 +4525,9 @@
                 document.getElementById('registerPlayBtn').textContent = 'キャンセルして登録する';
                 
                 showNotification('ゲストモードで開始。下のボタンでプレイモードを選択してください。', 'info');
-            });
-
-            document.getElementById('soloPlayBtn').addEventListener('click', () => {
+                
+                // 直接CPU対戦設定画面へ
                 showScreen('soloSetupScreen');
-                audio.playClick();
             });
 
             document.getElementById('localPlayBtn').addEventListener('click', () => {
@@ -5311,47 +5266,17 @@
             
             // Load audio preferences
             const prefs = audio.loadPreferences();
-            document.getElementById('bgmBtn').classList.toggle('on', prefs.bgm);
-            document.getElementById('seBtn').classList.toggle('on', prefs.se);
             
-            // スマホ用ボタンも同期
+            // BGMボタンの同期（パネル内とモバイル）
+            document.getElementById('panelBgmBtn').classList.toggle('on', prefs.bgm);
             document.getElementById('mobileBgmBtn').classList.toggle('on', prefs.bgm);
-            document.getElementById('mobileBgmBtn2').classList.toggle('on', prefs.bgm);
-            document.getElementById('mobileSeBtn').classList.toggle('on', prefs.se);
-            document.getElementById('mobileSeBtn2').classList.toggle('on', prefs.se);
             
-            // 音量スライダーの初期化
-            const volumeSlider = document.getElementById('bgmVolume');
-            const volumeValue = document.getElementById('volumeValue');
-            const volumeControl = document.getElementById('volumeControl');
-            
-            volumeSlider.value = Math.round(prefs.volume * 100);
-            volumeValue.textContent = Math.round(prefs.volume * 100) + '%';
-            
-            // BGMがOFFなら音量コントロールを非表示
-            volumeControl.classList.toggle('hidden', !prefs.bgm);
-            
-            // 音量スライダーのイベント
-            volumeSlider.addEventListener('input', (e) => {
-                const volume = parseInt(e.target.value) / 100;
-                audio.setBgmVolume(volume);
-                volumeValue.textContent = e.target.value + '%';
-            });
-            
-            // BGMボタン - シンプルにクリックでON/OFF
-            const bgmBtn = document.getElementById('bgmBtn');
-            bgmBtn.addEventListener('click', () => {
-                const isOn = audio.toggleBGM();
-                bgmBtn.classList.toggle('on', isOn);
-                volumeControl.classList.toggle('hidden', !isOn);
-            });
-
-            // SEボタン
-            document.getElementById('seBtn').addEventListener('click', () => {
-                const btn = document.getElementById('seBtn');
-                const isOn = audio.toggleSE();
-                btn.classList.toggle('on', isOn);
-            });
+            // 言語の初期化
+            const savedLang = localStorage.getItem('linkedblocks_lang') || 'ja';
+            document.getElementById('langJaBtn').classList.toggle('active', savedLang === 'ja');
+            document.getElementById('langEnBtn').classList.toggle('active', savedLang === 'en');
+            currentLang = savedLang;
+            updateTexts();
             
             handleIntro();
         }
