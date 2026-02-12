@@ -1872,77 +1872,24 @@
                 this.playTone(150, 0.3, 'sawtooth', 0.08);
             }
 
-            // Tetris-style BGM using Korobeiniki melody
             startBGM() {
                 if (!this.bgmEnabled || this.bgmPlaying) return;
-                
+
                 this.init();
                 this.resume();
                 this.bgmPlaying = true;
 
-                // Korobeiniki (Tetris Theme) melody - notes with duration
-                // Format: [frequency, duration in beats]
-                const melody = [
-                    // Part A
-                    [659, 1], [494, 0.5], [523, 0.5], [587, 1], [523, 0.5], [494, 0.5],
-                    [440, 1], [440, 0.5], [523, 0.5], [659, 1], [587, 0.5], [523, 0.5],
-                    [494, 1.5], [523, 0.5], [587, 1], [659, 1],
-                    [523, 1], [440, 1], [440, 1], [0, 1],
-                    // Part B
-                    [0, 0.5], [587, 1], [698, 0.5], [880, 1], [784, 0.5], [698, 0.5],
-                    [659, 1.5], [523, 0.5], [659, 1], [587, 0.5], [523, 0.5],
-                    [494, 1], [494, 0.5], [523, 0.5], [587, 1], [659, 1],
-                    [523, 1], [440, 1], [440, 1], [0, 1]
-                ];
+                // MP3ファイルを使用したBGM再生
+                if (!this.bgmAudio) {
+                    this.bgmAudio = new Audio('LINKED%20BLOCKS.mp3');
+                    this.bgmAudio.loop = true;
+                    this.bgmAudio.volume = this.bgmVolume;
+                }
 
-                // Bass line
-                const bassLine = [
-                    [165, 2], [131, 2], [147, 2], [131, 2],
-                    [165, 2], [131, 2], [147, 2], [131, 2],
-                    [165, 2], [131, 2], [147, 2], [131, 2],
-                    [165, 2], [131, 2], [147, 2], [131, 2]
-                ];
-
-                const bpm = 140;
-                const beatDuration = 60 / bpm;
-                
-                let melodyTime = 0;
-                melody.forEach(note => { melodyTime += note[1]; });
-                const loopDuration = melodyTime * beatDuration;
-
-                const scheduleLoop = () => {
-                    if (!this.bgmEnabled || !this.bgmPlaying) return;
-                    
-                    const now = this.audioContext.currentTime;
-                    
-                    // Schedule melody
-                    let currentTime = 0;
-                    melody.forEach(([freq, beats]) => {
-                        if (freq > 0) {
-                            this.scheduleBGMNote(freq, now + currentTime * beatDuration, beats * beatDuration * 0.9, 'square', 0.4);
-                        }
-                        currentTime += beats;
-                    });
-
-                    // Schedule bass
-                    let bassTime = 0;
-                    const totalBassTime = bassLine.reduce((sum, n) => sum + n[1], 0) * beatDuration;
-                    const bassLoops = Math.ceil(loopDuration / totalBassTime);
-                    
-                    for (let loop = 0; loop < bassLoops && bassTime * beatDuration < loopDuration; loop++) {
-                        bassLine.forEach(([freq, beats]) => {
-                            if (bassTime * beatDuration < loopDuration) {
-                                this.scheduleBGMNote(freq, now + bassTime * beatDuration, beats * beatDuration * 0.8, 'triangle', 0.3);
-                            }
-                            bassTime += beats;
-                        });
-                    }
-
-                    // Schedule next loop
-                    this.bgmScheduler = setTimeout(() => scheduleLoop(), (loopDuration - 0.1) * 1000);
-                };
-
-                scheduleLoop();
+                this.bgmAudio.currentTime = 0;
+                this.bgmAudio.play().catch(e => {
+                    console.log('BGM play failed:', e);
+                });
             }
 
             scheduleBGMNote(freq, startTime, duration, type, volume) {
@@ -1976,12 +1923,12 @@
 
             stopBGM() {
                 this.bgmPlaying = false;
-                
+
                 if (this.bgmScheduler) {
                     clearTimeout(this.bgmScheduler);
                     this.bgmScheduler = null;
                 }
-                
+
                 // Stop all BGM nodes
                 this.bgmNodes.forEach(({ osc, gain }) => {
                     try {
@@ -1991,6 +1938,12 @@
                     } catch (e) {}
                 });
                 this.bgmNodes = [];
+
+                // MP3の停止
+                if (this.bgmAudio) {
+                    this.bgmAudio.pause();
+                    this.bgmAudio.currentTime = 0;
+                }
             }
 
             toggleBGM() {
