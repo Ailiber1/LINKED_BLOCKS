@@ -2133,6 +2133,7 @@
             // Game settings
             gameMode: null, // 'solo', 'local', 'multi'
             cpuLevel: 'normal',
+            cpuStrategy: null, // 強CPUのランダム戦略
             winLength: 4,
             timerSetting: 0,
             multiTimerSetting: '30', // マルチプレイ用タイマー設定
@@ -3504,35 +3505,58 @@
             let selectedMove;
             
             if (GameState.cpuLevel === 'weak') {
-                // 弱：70%ランダム、30%最善手
-                if (Math.random() < 0.7) {
-                    selectedMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                // 弱：40%ランダム（上位手から）、60%先読み付き最善手
+                const immediateWinW = findImmediateWin(1);
+                if (immediateWinW) {
+                    selectedMove = immediateWinW;
                 } else {
-                    validMoves.forEach(move => {
-                        move.score = evaluateMove(move.x, move.y);
-                    });
-                    validMoves.sort((a, b) => b.score - a.score);
-                    selectedMove = validMoves[0];
+                    const immediateBlockW = findImmediateWin(0);
+                    if (immediateBlockW) {
+                        selectedMove = immediateBlockW;
+                    } else if (Math.random() < 0.4) {
+                        validMoves.forEach(move => {
+                            move.score = evaluateMoveWithLookahead(move.x, move.y, 2);
+                        });
+                        validMoves.sort((a, b) => b.score - a.score);
+                        const topMoves = validMoves.slice(0, Math.min(3, validMoves.length));
+                        selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+                    } else {
+                        validMoves.forEach(move => {
+                            move.score = evaluateMoveWithLookahead(move.x, move.y, 2);
+                        });
+                        validMoves.sort((a, b) => b.score - a.score);
+                        selectedMove = validMoves[0];
+                    }
                 }
             } else if (GameState.cpuLevel === 'normal') {
-                // 中：10%ランダム、90%評価ベース（深さ3の先読み）
-                if (Math.random() < 0.10) {
-                    validMoves.forEach(move => {
-                        move.score = evaluateMove(move.x, move.y);
-                    });
-                    validMoves.sort((a, b) => b.score - a.score);
-                    // 上位3手からランダム選択
-                    const topMoves = validMoves.slice(0, Math.min(3, validMoves.length));
-                    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+                // 中：即勝利/即ブロック優先、先読み深さ5で最善手
+                const immediateWinN = findImmediateWin(1);
+                if (immediateWinN) {
+                    selectedMove = immediateWinN;
                 } else {
-                    validMoves.forEach(move => {
-                        move.score = evaluateMoveWithLookahead(move.x, move.y, 3);
-                    });
-                    validMoves.sort((a, b) => b.score - a.score);
-                    selectedMove = validMoves[0];
+                    const immediateBlockN = findImmediateWin(0);
+                    if (immediateBlockN) {
+                        selectedMove = immediateBlockN;
+                    } else {
+                        const doubleReachN = findDoubleReachMove(1);
+                        if (doubleReachN) {
+                            selectedMove = doubleReachN;
+                        } else {
+                            const blockDoubleReachN = findDoubleReachMove(0);
+                            if (blockDoubleReachN) {
+                                selectedMove = blockDoubleReachN;
+                            } else {
+                                validMoves.forEach(move => {
+                                    move.score = evaluateMoveWithLookahead(move.x, move.y, 5);
+                                });
+                                validMoves.sort((a, b) => b.score - a.score);
+                                selectedMove = validMoves[0];
+                            }
+                        }
+                    }
                 }
             } else {
-                // 強：最強AI - 常に最適な手を選ぶ
+                // 強：最強AI - 戦略をランダムに変化させる
                 // 即勝利・即ブロックを最優先でチェック
                 const immediateWin = findImmediateWin(1); // CPU勝利
                 if (immediateWin) {
@@ -3552,12 +3576,19 @@
                             if (blockDoubleReach) {
                                 selectedMove = blockDoubleReach;
                             } else {
-                                // 深い先読みで最善手を選択（深さ6）
+                                // ランダム戦略による先読み（深さ8）
+                                const strategy = GameState.cpuStrategy || {};
                                 validMoves.forEach(move => {
-                                    move.score = evaluateMoveWithLookahead(move.x, move.y, 6);
+                                    move.score = evaluateMoveWithLookahead(move.x, move.y, 8);
+                                    // 戦略ボーナスを加算
+                                    move.score += getCpuStrategyBonus(move.x, move.y, strategy);
                                 });
                                 validMoves.sort((a, b) => b.score - a.score);
-                                selectedMove = validMoves[0];
+                                // 僅差の手からランダム選択（パターン固定化を防ぐ）
+                                const topScore = validMoves[0].score;
+                                const threshold = Math.abs(topScore) * 0.05 + 10;
+                                const candidates = validMoves.filter(m => m.score >= topScore - threshold);
+                                selectedMove = candidates[Math.floor(Math.random() * candidates.length)];
                             }
                         }
                     }
@@ -3665,6 +3696,69 @@
             
             // リーチ: winLength - 1個並んでいて、空きが1つある
             return count >= winLength - 1 && emptyCount === 1 && emptyPos && canPlaceAt(emptyPos.x, emptyPos.y);
+        }
+
+        // 強CPUの戦略をランダムに生成（毎ゲーム呼び出し）
+        function randomizeCpuStrategy() {
+            const strategies = [
+                { name: 'center', centerWeight: 80, edgeWeight: -20, aggressiveness: 1.0 },
+                { name: 'edge', centerWeight: -10, edgeWeight: 60, aggressiveness: 1.0 },
+                { name: 'aggressive', centerWeight: 30, edgeWeight: 10, aggressiveness: 1.8 },
+                { name: 'defensive', centerWeight: 30, edgeWeight: 10, aggressiveness: 0.5 },
+                { name: 'diagonal', centerWeight: 40, edgeWeight: 0, diagonalWeight: 50, aggressiveness: 1.2 },
+                { name: 'spread', centerWeight: 10, edgeWeight: 30, spreadWeight: 40, aggressiveness: 1.0 },
+            ];
+            const picked = strategies[Math.floor(Math.random() * strategies.length)];
+            // さらにランダム性を追加
+            picked.centerWeight += (Math.random() - 0.5) * 30;
+            picked.edgeWeight += (Math.random() - 0.5) * 20;
+            picked.aggressiveness += (Math.random() - 0.5) * 0.4;
+            console.log('CPU Strategy:', picked.name, picked);
+            return picked;
+        }
+
+        // 戦略に基づくボーナス計算
+        function getCpuStrategyBonus(x, y, strategy) {
+            if (!strategy) return 0;
+
+            let bonus = 0;
+            const center = (GameState.boardSize - 1) / 2;
+            const distFromCenter = Math.abs(x - center) + Math.abs(y - center);
+            const maxDist = center * 2;
+
+            // 中心ボーナス/ペナルティ
+            if (strategy.centerWeight) {
+                bonus += strategy.centerWeight * (1 - distFromCenter / maxDist);
+            }
+
+            // 端ボーナス
+            if (strategy.edgeWeight) {
+                bonus += strategy.edgeWeight * (distFromCenter / maxDist);
+            }
+
+            // 対角線ボーナス
+            if (strategy.diagonalWeight) {
+                const diagDist = Math.min(Math.abs(x - y), Math.abs(x - (GameState.boardSize - 1 - y)));
+                bonus += strategy.diagonalWeight * (1 - diagDist / center);
+            }
+
+            // 分散ボーナス（既存の自石から離れた位置を好む）
+            if (strategy.spreadWeight) {
+                let minDist = Infinity;
+                for (let by = 0; by < GameState.boardSize; by++) {
+                    for (let bx = 0; bx < GameState.boardSize; bx++) {
+                        if (GameState.board[by][bx] === 1) {
+                            const d = Math.abs(x - bx) + Math.abs(y - by);
+                            minDist = Math.min(minDist, d);
+                        }
+                    }
+                }
+                if (minDist !== Infinity) {
+                    bonus += strategy.spreadWeight * Math.min(minDist / 4, 1);
+                }
+            }
+
+            return bonus;
         }
 
         // 先読み付き評価（ミニマックス）
@@ -3971,7 +4065,12 @@
         function startGame() {
             GameState.gameActive = true;
             GameState.isPlacing = false; // 配置中フラグをリセット
-            
+
+            // 強CPUの場合、毎ゲーム戦略をランダム化
+            if (GameState.cpuLevel === 'strong' && GameState.gameMode === 'solo') {
+                GameState.cpuStrategy = randomizeCpuStrategy();
+            }
+
             // マルチプレイ以外の場合のみcurrentPlayerを0に設定
             // マルチプレイではstartMultiplayerGameで既にFirebaseから設定済み
             if (GameState.gameMode !== 'multi') {
